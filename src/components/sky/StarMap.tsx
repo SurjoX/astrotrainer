@@ -136,8 +136,8 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     // magnitude → radius, gently scaled with zoom level
     const zoomBoost = Math.max(0.75, Math.min(1.5, 45 / localView.fov + 0.55));
     const radiusFor = (mag: number) => {
-      const base = Math.max(0.7, 0.72 * Math.pow(1.5, Math.max(-1.5, 6.2 - mag)));
-      return Math.min(10, base * zoomBoost);
+      const base = Math.max(0.8, 0.85 * Math.pow(1.55, Math.max(-1.5, 6.4 - mag)));
+      return Math.min(11, base * zoomBoost);
     };
 
     const positions = new Map<number, { x: number; y: number }>();

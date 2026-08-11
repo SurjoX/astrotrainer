@@ -1,24 +1,111 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
+import { SkyViewer } from "@/components/sky/SkyViewer";
+import { Button } from "@/components/ui/button";
+import { useProgress } from "@/hooks/useProgress";
+import { constellations, getConstellation } from "@/lib/astro/catalog";
+import { accuracy, weakConstellations } from "@/lib/progress";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "AstroTrainer — Astronomy Observation Training" },
+      {
+        name: "description",
+        content:
+          "Learn the night sky on dynamically generated star maps: constellation identification drills, an atlas of all 88 IAU constellations and performance tracking.",
+      },
+      { property: "og:title", content: "AstroTrainer — Astronomy Observation Training" },
+      {
+        property: "og:description",
+        content:
+          "Constellation recognition drills on real star maps, an 88-constellation atlas and adaptive practice.",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const { progress, ready } = useProgress();
+  const hero = useMemo(() => getConstellation("ori") ?? constellations[0]!, []);
+  const practiced = Object.keys(progress.byConstellation).length;
+  const weakest = weakConstellations(progress, 1)[0];
+  const hasHistory = progress.totalQuestions > 0;
+
+  const stats = [
+    { label: "Questions", value: hasHistory ? String(progress.totalQuestions) : "—" },
+    {
+      label: "Accuracy",
+      value: hasHistory ? `${accuracy(progress.correct, progress.totalQuestions)}%` : "—",
+    },
+    { label: "Constellations practiced", value: hasHistory ? `${practiced} / 88` : "—" },
+    {
+      label: "Weakest",
+      value: weakest ? (getConstellation(weakest.id)?.name ?? "—") : "—",
+    },
+  ];
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+      <section className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+        <div>
+          <p className="label-caps">Astronomy Observation Training</p>
+          <h1 className="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl">
+            ASTROTRAINER
+          </h1>
+          <p className="mt-4 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Every field is rendered live from the Bright Star Catalogue with real J2000
+            coordinates and magnitudes, and every stick figure comes from the modern
+            Stellarium sky culture. Recognise patterns, not screenshots.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Button asChild size="lg">
+              <Link to="/practice">Start Practice</Link>
+            </Button>
+            <Button asChild size="lg" variant="secondary">
+              <Link to="/constellations">Explore Constellations</Link>
+            </Button>
+            <Button asChild size="lg" variant="ghost">
+              <Link to="/progress">View Progress</Link>
+            </Button>
+          </div>
+        </div>
+        <div className="panel overflow-hidden">
+          <SkyViewer
+            constellation={hero}
+            magnitudeLimit={5.4}
+            className="h-[300px] sm:h-[420px]"
+            emphasizeTarget
+          />
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="label-caps">Your dashboard</h2>
+        {ready && !hasHistory ? (
+          <div className="panel mt-3 p-6">
+            <p className="font-display text-lg">No observations logged yet</p>
+            <p className="mt-1 max-w-prose text-sm text-muted-foreground">
+              Start with Beginner mode — the conventional stick figure is drawn over the
+              stars while you learn. Progress is stored locally in this browser; no account
+              needed.
+            </p>
+            <Button asChild className="mt-4" variant="secondary">
+              <Link to="/practice">Begin your first session</Link>
+            </Button>
+          </div>
+        ) : (
+          <dl className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {stats.map((s) => (
+              <div key={s.label} className="panel p-4">
+                <dt className="label-caps">{s.label}</dt>
+                <dd className="mt-1 font-display text-2xl font-semibold">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </section>
+    </main>
   );
 }

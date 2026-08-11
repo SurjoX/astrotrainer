@@ -10,33 +10,81 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PracticeRouteImport } from './routes/practice'
+import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as ConstellationsIndexRouteImport } from './routes/constellations.index'
+import { Route as ConstellationsIdRouteImport } from './routes/constellations.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PracticeRoute = PracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConstellationsIndexRoute = ConstellationsIndexRouteImport.update({
+  id: '/constellations/',
+  path: '/constellations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConstellationsIdRoute = ConstellationsIdRouteImport.update({
+  id: '/constellations/$id',
+  path: '/constellations/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/practice': typeof PracticeRoute
+  '/progress': typeof ProgressRoute
+  '/constellations/$id': typeof ConstellationsIdRoute
+  '/constellations/': typeof ConstellationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/practice': typeof PracticeRoute
+  '/progress': typeof ProgressRoute
+  '/constellations/$id': typeof ConstellationsIdRoute
+  '/constellations': typeof ConstellationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/practice': typeof PracticeRoute
+  '/progress': typeof ProgressRoute
+  '/constellations/$id': typeof ConstellationsIdRoute
+  '/constellations/': typeof ConstellationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/practice' | '/progress' | '/constellations/$id' | '/constellations/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    '/' | '/practice' | '/progress' | '/constellations/$id' | '/constellations'
+  id:
+    | '__root__'
+    | '/'
+    | '/practice'
+    | '/progress'
+    | '/constellations/$id'
+    | '/constellations/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PracticeRoute: typeof PracticeRoute
+  ProgressRoute: typeof ProgressRoute
+  ConstellationsIdRoute: typeof ConstellationsIdRoute
+  ConstellationsIndexRoute: typeof ConstellationsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +96,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/practice': {
+      id: '/practice'
+      path: '/practice'
+      fullPath: '/practice'
+      preLoaderRoute: typeof PracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/constellations/': {
+      id: '/constellations/'
+      path: '/constellations'
+      fullPath: '/constellations/'
+      preLoaderRoute: typeof ConstellationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/constellations/$id': {
+      id: '/constellations/$id'
+      path: '/constellations/$id'
+      fullPath: '/constellations/$id'
+      preLoaderRoute: typeof ConstellationsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PracticeRoute: PracticeRoute,
+  ProgressRoute: ProgressRoute,
+  ConstellationsIdRoute: ConstellationsIdRoute,
+  ConstellationsIndexRoute: ConstellationsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

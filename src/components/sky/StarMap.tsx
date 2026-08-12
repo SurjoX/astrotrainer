@@ -201,7 +201,6 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
           usedX.push(p.x);
           ctx.textAlign = "center";
           ctx.fillText(raLabel(line.value), p.x, 12);
-          console.log("RA", line.value, Math.round(p.x));
         } else {
           if (p.y < 16 || p.y > size.h - 16) continue;
           if (usedY.some((y) => Math.abs(y - p.y) < 16)) continue;

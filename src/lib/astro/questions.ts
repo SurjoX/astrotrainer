@@ -6,11 +6,43 @@ import type { Constellation, Difficulty, Question, SkyState } from "./types";
 /** Difficulty only changes the *challenge before answering*, never the reveal. */
 export const DIFFICULTY_PROFILE: Record<
   Difficulty,
-  { magnitudeLimit: number; showLines: boolean; labelMode: SkyState["labelMode"]; maxRotation: number; fovScale: number }
+  {
+    magnitudeLimit: number;
+    showLines: boolean;
+    showBoundary: boolean;
+    showGrid: boolean;
+    labelMode: SkyState["labelMode"];
+    maxRotation: number;
+    fovScale: number;
+  }
 > = {
-  beginner: { magnitudeLimit: 5.3, showLines: true, labelMode: "none", maxRotation: 0, fovScale: 1 },
-  intermediate: { magnitudeLimit: 5.6, showLines: false, labelMode: "none", maxRotation: 25, fovScale: 1.25 },
-  advanced: { magnitudeLimit: 6.5, showLines: false, labelMode: "none", maxRotation: 60, fovScale: 1.6 },
+  beginner: {
+    magnitudeLimit: 5.3,
+    showLines: true,
+    showBoundary: true,
+    showGrid: true,
+    labelMode: "none",
+    maxRotation: 0,
+    fovScale: 1,
+  },
+  intermediate: {
+    magnitudeLimit: 5.6,
+    showLines: false,
+    showBoundary: true,
+    showGrid: true,
+    labelMode: "none",
+    maxRotation: 25,
+    fovScale: 1.25,
+  },
+  advanced: {
+    magnitudeLimit: 6.5,
+    showLines: false,
+    showBoundary: false,
+    showGrid: false,
+    labelMode: "none",
+    maxRotation: 60,
+    fovScale: 1.6,
+  },
 };
 
 function rng(): number {
@@ -72,6 +104,8 @@ export function buildSkyState(c: Constellation, difficulty: Difficulty): SkyStat
     rotation,
     magnitudeLimit: profile.magnitudeLimit,
     showLines: profile.showLines,
+    showBoundary: profile.showBoundary,
+    showGrid: profile.showGrid,
     labelMode: profile.labelMode,
   };
 }

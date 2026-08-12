@@ -33,9 +33,9 @@ export const Route = createFileRoute("/practice")({
 });
 
 const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
-  { id: "beginner", label: "Beginner", blurb: "Stick figure drawn, bright stars only" },
-  { id: "intermediate", label: "Intermediate", blurb: "No figure, moderate star field, slight rotation" },
-  { id: "advanced", label: "Advanced", blurb: "Faint stars, realistic clutter, strong rotation" },
+  { id: "beginner", label: "Beginner", blurb: "Stick figure, IAU boundary and coordinate grid" },
+  { id: "intermediate", label: "Intermediate", blurb: "Boundary and grid only, no figure, slight rotation" },
+  { id: "advanced", label: "Advanced", blurb: "Stars only — no figure, boundary or grid, strong rotation" },
 ];
 
 const FUTURE_MODES = [
@@ -235,6 +235,8 @@ function PracticePage() {
           magnitudeLimit={question.skyState.magnitudeLimit}
           defaultLines={revealed ? true : question.skyState.showLines}
           defaultLabels={revealed}
+          defaultBoundary={revealed ? true : question.skyState.showBoundary}
+          defaultGrid={revealed ? true : question.skyState.showGrid}
           labelModeWhenOn="important"
           lockToggles={!revealed}
           emphasizeTarget={revealed}

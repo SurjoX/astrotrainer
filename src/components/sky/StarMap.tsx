@@ -15,6 +15,8 @@ import {
   starsInField,
 } from "@/lib/astro/catalog";
 import { clampFov, fitConstellation } from "@/lib/astro/fov";
+import { boundaryOf } from "@/lib/astro/boundaries";
+import { buildGrid, decLabel, raLabel } from "@/lib/astro/grid";
 import { Projection, type ViewState } from "@/lib/astro/projection";
 import type { Constellation, LabelMode, Star } from "@/lib/astro/types";
 import { cn } from "@/lib/utils";
@@ -32,6 +34,10 @@ export interface StarMapProps {
   view: ViewState;
   magnitudeLimit?: number;
   showLines?: boolean;
+  /** Official IAU boundary of the target constellation */
+  showBoundary?: boolean;
+  /** J2000 equatorial coordinate grid */
+  showGrid?: boolean;
   labelMode?: LabelMode;
   /** Dim stars that are not part of the target figure */
   emphasizeTarget?: boolean;
@@ -70,6 +76,8 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     view,
     magnitudeLimit = 6.5,
     showLines = false,
+    showBoundary = false,
+    showGrid = false,
     labelMode = "none",
     emphasizeTarget = false,
     interactive = true,
@@ -118,6 +126,11 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     return starsInField(localView.ra, localView.dec, Math.min(120, radius), magnitudeLimit);
   }, [localView.ra, localView.dec, localView.fov, magnitudeLimit, size.w, size.h]);
 
+  const fieldRadius = useMemo(() => {
+    const aspect = size.w / Math.max(1, size.h);
+    return Math.min(120, (localView.fov / 2) * Math.max(1, aspect) * 1.25 + 2);
+  }, [localView.fov, size.w, size.h]);
+
   // ---- rendering -----------------------------------------------------------
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -132,6 +145,84 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
 
     const proj = new Projection(localView, size.w, size.h);
     const figureSet = new Set(target?.figureStars ?? []);
+
+    /** Draws a sky-space polyline, breaking the path where it leaves the projection. */
+    const strokePath = (pts: [number, number][], closed: boolean) => {
+      ctx.beginPath();
+      let pen = false;
+      let prev: { x: number; y: number } | null = null;
+      const first = pts[0];
+      const list = closed && first ? [...pts, first] : pts;
+      for (const [ra, dec] of list) {
+        const p = proj.project(ra, dec);
+        if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.y)) {
+          pen = false;
+          prev = null;
+          continue;
+        }
+        const jump = prev ? Math.hypot(p.x - prev.x, p.y - prev.y) > Math.max(size.w, size.h) : false;
+        if (!pen || jump) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+        pen = true;
+        prev = p;
+      }
+      ctx.stroke();
+    };
+
+    // --- J2000 equatorial grid (drawn first, behind everything) ---
+    if (showGrid) {
+      const grid = buildGrid(localView.ra, localView.dec, localView.fov, fieldRadius);
+      ctx.lineWidth = 1;
+      for (const line of grid) {
+        ctx.strokeStyle = line.major
+          ? "rgba(126,190,255,0.30)"
+          : line.meridian
+            ? "rgba(150,178,220,0.16)"
+            : "rgba(150,178,220,0.13)";
+        ctx.setLineDash(line.major ? [] : [4, 5]);
+        strokePath(line.points, false);
+      }
+      ctx.setLineDash([]);
+
+      // coordinate readouts along the frame edges
+      ctx.font = "500 10px ui-monospace, SFMono-Regular, monospace";
+      ctx.fillStyle = "rgba(150,178,220,0.55)";
+      ctx.textBaseline = "middle";
+      const usedX: number[] = [];
+      const usedY: number[] = [];
+      for (const line of grid) {
+        const mid = line.points[Math.floor(line.points.length / 2)];
+        if (!mid) continue;
+        const p = proj.project(mid[0], mid[1]);
+        if (!p) continue;
+        if (line.meridian) {
+          if (p.x < 20 || p.x > size.w - 20) continue;
+          if (usedX.some((x) => Math.abs(x - p.x) < 46)) continue;
+          usedX.push(p.x);
+          ctx.textAlign = "center";
+          ctx.fillText(raLabel(line.value), p.x, 12);
+        } else {
+          if (p.y < 16 || p.y > size.h - 16) continue;
+          if (usedY.some((y) => Math.abs(y - p.y) < 16)) continue;
+          usedY.push(p.y);
+          ctx.textAlign = "left";
+          ctx.fillText(decLabel(line.value), 6, p.y);
+        }
+      }
+      ctx.textAlign = "left";
+    }
+
+    // --- official IAU constellation boundary ---
+    if (showBoundary && target) {
+      ctx.lineWidth = 1.1;
+      ctx.strokeStyle = "rgba(126,190,255,0.42)";
+      ctx.setLineDash([7, 5]);
+      ctx.lineJoin = "round";
+      for (const poly of boundaryOf(target.id)) {
+        strokePath(poly, true);
+      }
+      ctx.setLineDash([]);
+    }
 
     // magnitude → radius, gently scaled with zoom level
     const zoomBoost = Math.max(0.75, Math.min(1.5, 45 / localView.fov + 0.55));
@@ -268,7 +359,19 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
       ctx.fillText("E", c.x + Math.cos(angle + Math.PI / 2) * 30, c.y + Math.sin(angle + Math.PI / 2) * 30);
       ctx.textAlign = "left";
     }
-  }, [field, localView, size, showLines, labelMode, target, emphasizeTarget, showCompass]);
+  }, [
+    field,
+    fieldRadius,
+    localView,
+    size,
+    showLines,
+    showBoundary,
+    showGrid,
+    labelMode,
+    target,
+    emphasizeTarget,
+    showCompass,
+  ]);
 
   // ---- interaction ---------------------------------------------------------
   const zoomAt = useCallback(

@@ -69,6 +69,10 @@ export interface SkyState {
   rotation: number;
   magnitudeLimit: number;
   showLines: boolean;
+  /** Official IAU boundary of the target constellation */
+  showBoundary: boolean;
+  /** J2000 equatorial coordinate grid */
+  showGrid: boolean;
   labelMode: LabelMode;
 }
 

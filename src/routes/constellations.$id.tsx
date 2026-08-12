@@ -43,6 +43,8 @@ function ConstellationDetail() {
           magnitudeLimit={6}
           defaultLines
           defaultLabels
+          defaultBoundary
+          defaultGrid
           emphasizeTarget
           className="h-[46vh] min-h-[300px] lg:h-[calc(100vh-8rem)]"
         />

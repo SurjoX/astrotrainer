@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Maximize2, Minus, Plus, RotateCcw, Spline, Tag } from "lucide-react";
+import { Grid3x3, Maximize2, Minus, Plus, RotateCcw, Spline, Squircle, Tag } from "lucide-react";
 import { StarMap, type StarMapHandle } from "./StarMap";
 import { fitConstellation } from "@/lib/astro/fov";
 import type { ViewState } from "@/lib/astro/projection";
@@ -14,6 +14,8 @@ interface SkyViewerProps {
   magnitudeLimit?: number;
   defaultLines?: boolean;
   defaultLabels?: boolean;
+  defaultBoundary?: boolean;
+  defaultGrid?: boolean;
   emphasizeTarget?: boolean;
   lockToggles?: boolean;
   className?: string;
@@ -31,6 +33,8 @@ export function SkyViewer({
   magnitudeLimit = 6.2,
   defaultLines = true,
   defaultLabels = true,
+  defaultBoundary = false,
+  defaultGrid = false,
   emphasizeTarget = false,
   lockToggles = false,
   className,
@@ -40,9 +44,13 @@ export function SkyViewer({
   const mapRef = useRef<StarMapHandle>(null);
   const [lines, setLines] = useState(defaultLines);
   const [labels, setLabels] = useState(defaultLabels);
+  const [boundary, setBoundary] = useState(defaultBoundary);
+  const [grid, setGrid] = useState(defaultGrid);
 
   useEffect(() => setLines(defaultLines), [defaultLines]);
   useEffect(() => setLabels(defaultLabels), [defaultLabels]);
+  useEffect(() => setBoundary(defaultBoundary), [defaultBoundary]);
+  useEffect(() => setGrid(defaultGrid), [defaultGrid]);
 
   const baseView = useMemo<ViewState>(() => {
     if (view) return view;
@@ -58,6 +66,8 @@ export function SkyViewer({
         view={baseView}
         magnitudeLimit={magnitudeLimit}
         showLines={lines}
+        showBoundary={boundary}
+        showGrid={grid}
         labelMode={labels ? labelModeWhenOn : "none"}
         emphasizeTarget={emphasizeTarget}
         className={cn("h-full w-full", mapClassName)}
@@ -96,6 +106,24 @@ export function SkyViewer({
               aria-pressed={labels}
             >
               <Tag className="size-3.5" /> Labels
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("h-8 gap-1.5 px-2 text-xs", boundary ? "text-primary" : "text-muted-foreground")}
+              onClick={() => setBoundary((v) => !v)}
+              aria-pressed={boundary}
+            >
+              <Squircle className="size-3.5" /> Boundary
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("h-8 gap-1.5 px-2 text-xs", grid ? "text-primary" : "text-muted-foreground")}
+              onClick={() => setGrid((v) => !v)}
+              aria-pressed={grid}
+            >
+              <Grid3x3 className="size-3.5" /> Grid
             </Button>
           </div>
         )}

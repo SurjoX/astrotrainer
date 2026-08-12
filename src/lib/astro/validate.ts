@@ -1,3 +1,4 @@
+import { boundaryOf } from "./boundaries";
 import { constellations, starById } from "./catalog";
 
 export interface ValidationResult {
@@ -45,6 +46,18 @@ export function validateAstronomyData(): ValidationResult {
       if (!(s.magnitude > -2 && s.magnitude < 15)) errors.push(`HIP ${h}: implausible magnitude`);
     }
     if (c.brightStars.length < 2) warnings.push(`${c.id}: fewer than 2 bright stars listed`);
+
+    const polys = boundaryOf(c.id);
+    if (!polys.length) errors.push(`${c.id}: missing IAU boundary polygon`);
+    for (const poly of polys) {
+      if (poly.length < 4) errors.push(`${c.id}: degenerate boundary polygon`);
+      for (const [ra, dec] of poly) {
+        if (!(ra >= 0 && ra < 360) || !(dec >= -90 && dec <= 90)) {
+          errors.push(`${c.id}: boundary vertex out of range (${ra}, ${dec})`);
+          break;
+        }
+      }
+    }
   }
 
   const ecliptic = constellations.filter((c) => c.isEcliptic);

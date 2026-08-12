@@ -188,6 +188,8 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
       ctx.font = "500 10px ui-monospace, SFMono-Regular, monospace";
       ctx.fillStyle = "rgba(150,178,220,0.55)";
       ctx.textBaseline = "middle";
+      const usedX: number[] = [];
+      const usedY: number[] = [];
       for (const line of grid) {
         const mid = line.points[Math.floor(line.points.length / 2)];
         if (!mid) continue;
@@ -195,10 +197,14 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
         if (!p) continue;
         if (line.meridian) {
           if (p.x < 20 || p.x > size.w - 20) continue;
+          if (usedX.some((x) => Math.abs(x - p.x) < 46)) continue;
+          usedX.push(p.x);
           ctx.textAlign = "center";
           ctx.fillText(raLabel(line.value), p.x, 12);
         } else {
           if (p.y < 16 || p.y > size.h - 16) continue;
+          if (usedY.some((y) => Math.abs(y - p.y) < 16)) continue;
+          usedY.push(p.y);
           ctx.textAlign = "left";
           ctx.fillText(decLabel(line.value), 6, p.y);
         }

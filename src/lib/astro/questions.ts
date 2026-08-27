@@ -37,7 +37,7 @@ export const DIFFICULTY_PROFILE: Record<
   advanced: {
     magnitudeLimit: 6.5,
     showLines: false,
-    showBoundary: false,
+    showBoundary: true,
     showGrid: false,
     labelMode: "none",
     maxRotation: 60,
@@ -135,6 +135,26 @@ export function generateConstellationQuestion(
   };
 }
 
+export function generateIAUImageQuestion(pool?: string[]): Question {
+  const candidates = pool?.length
+    ? (pool.map(getConstellation).filter(Boolean) as Constellation[])
+    : constellations;
+  const target = pick(candidates.length ? candidates : constellations);
+  const choices = [target, ...distractorsFor(target)]
+    .sort(() => rng() - 0.5)
+    .map((c) => ({ id: c.id, label: c.name }));
+  seq += 1;
+  return {
+    id: `q${Date.now()}-${seq}`,
+    type: QuestionType.IDENTIFY_CONSTELLATION_FROM_IMAGE,
+    target: target.id,
+    difficulty: "intermediate", // Fixed difficulty for image mode
+    skyState: buildSkyState(target, "beginner"), // Not used, but included for compatibility
+    choices,
+    correctAnswer: target.id,
+  };
+}
+
 /** Single entry point so future modes plug in without touching the practice UI. */
 export function generateQuestion(
   type: QuestionType,
@@ -144,6 +164,8 @@ export function generateQuestion(
   switch (type) {
     case QuestionType.IDENTIFY_CONSTELLATION:
       return generateConstellationQuestion(difficulty, pool);
+    case QuestionType.IDENTIFY_CONSTELLATION_FROM_IMAGE:
+      return generateIAUImageQuestion(pool);
     default:
       throw new Error(`Question type ${type} is not implemented yet`);
   }

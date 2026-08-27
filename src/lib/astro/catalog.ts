@@ -60,6 +60,42 @@ export function getConstellation(id: string): Constellation | undefined {
   return constellationById.get(id);
 }
 
+/** Bayer letter abbreviations to Greek letter mapping. */
+const BAYER_SYMBOLS: Record<string, string> = {
+  "Alp": "α",
+  "Bet": "β",
+  "Gam": "γ",
+  "Del": "δ",
+  "Eps": "ε",
+  "Zet": "ζ",
+  "Eta": "η",
+  "The": "θ",
+  "Iot": "ι",
+  "Kap": "κ",
+  "Lam": "λ",
+  "Mu": "μ",
+  "Nu": "ν",
+  "Xi": "ξ",
+  "Omi": "ο",
+  "Pi": "π",
+  "Rho": "ρ",
+  "Sig": "σ",
+  "Tau": "τ",
+  "Ups": "υ",
+  "Phi": "φ",
+  "Chi": "χ",
+  "Psi": "ψ",
+  "Ome": "ω",
+};
+
+/** Convert Bayer code (e.g., "Alp") to Greek symbol (e.g., "α"). */
+export function bayerToSymbol(bayerCode: string | null): string | null {
+  if (!bayerCode) return null;
+  // Handle numbered variants like "Kap-1", "Gam-3" → just use base letter
+  const base = bayerCode.split("-")[0]!;
+  return BAYER_SYMBOLS[base] ?? null;
+}
+
 /** Named stars of the figure, brightest first — the "important" label set. */
 const importantCache = new Map<string, Star[]>();
 export function importantStars(c: Constellation): Star[] {
@@ -72,6 +108,27 @@ export function importantStars(c: Constellation): Star[] {
     .slice(0, 8);
   importantCache.set(c.id, named);
   return named;
+}
+
+/** Format star label with Bayer designation if available: "Betelgeuse — α Ori". */
+export function starLabelWithBayer(s: Star): string {
+  if (!s.name) return starLabel(s);
+  const bayerSymbol = bayerToSymbol(s.bayer);
+  if (bayerSymbol) {
+    const bayerPart = s.constellation ? `${bayerSymbol} ${s.constellation}` : bayerSymbol;
+    return `${s.name} — ${bayerPart}`;
+  }
+  return s.name;
+}
+
+/** Format star label with compact Bayer in parentheses: "Betelgeuse (α)". */
+export function starLabelCompact(s: Star): string {
+  if (!s.name) return starLabel(s);
+  const bayerSymbol = bayerToSymbol(s.bayer);
+  if (bayerSymbol) {
+    return `${s.name} (${bayerSymbol})`;
+  }
+  return s.name;
 }
 
 export function starLabel(s: Star): string {

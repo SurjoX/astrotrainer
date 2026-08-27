@@ -1,4 +1,4 @@
-import { importantStars, starLabel } from "@/lib/astro/catalog";
+import { importantStars, starLabelWithBayer } from "@/lib/astro/catalog";
 import type { Constellation } from "@/lib/astro/types";
 
 /** The educational payload shown identically at every difficulty after answering. */
@@ -39,14 +39,14 @@ export function ConstellationFacts({ constellation }: { constellation: Constella
 
       {keyStars.length > 0 && (
         <div>
-          <p className="label-caps">Key stars</p>
+          <p className="label-caps">Bright stars</p>
           <ul className="mt-1.5 flex flex-wrap gap-1.5">
             {keyStars.map((s) => (
               <li
                 key={s.id}
                 className="rounded border border-border/80 bg-secondary/50 px-2 py-1 text-xs"
               >
-                {starLabel(s)}{" "}
+                {starLabelWithBayer(s)}{" "}
                 <span className="font-mono text-[10px] text-muted-foreground">
                   m{s.magnitude.toFixed(2)}
                 </span>

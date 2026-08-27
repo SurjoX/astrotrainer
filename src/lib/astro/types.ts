@@ -44,11 +44,14 @@ export interface Constellation {
   lineData: [number, number][];
   /** Every HIP id referenced by the stick figure */
   figureStars: number[];
+  /** Path to official IAU constellation image (optional) */
+  iauImage?: string;
 }
 
 /** Extensible question taxonomy — only IDENTIFY_CONSTELLATION is implemented today. */
 export enum QuestionType {
   IDENTIFY_CONSTELLATION = "IDENTIFY_CONSTELLATION",
+  IDENTIFY_CONSTELLATION_FROM_IMAGE = "IDENTIFY_CONSTELLATION_FROM_IMAGE",
   IDENTIFY_STAR = "IDENTIFY_STAR",
   FIND_STAR = "FIND_STAR",
   IDENTIFY_MESSIER = "IDENTIFY_MESSIER",

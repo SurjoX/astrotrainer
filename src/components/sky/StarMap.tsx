@@ -1109,6 +1109,8 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       size,
       showLines,
       showBoundary,
+      boundaryIds,
+      labelStarsProp,
       showGrid,
       labelMode,
       target,

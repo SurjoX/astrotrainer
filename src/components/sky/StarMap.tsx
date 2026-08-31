@@ -231,6 +231,8 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       showBoundary = false,
       showGrid = false,
       labelMode = "none",
+      boundaryIds,
+      labelStars: labelStarsProp,
       emphasizeTarget = false,
       interactive = true,
       showCompass = true,

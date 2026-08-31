@@ -614,13 +614,15 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
 
         ctx.lineJoin = "round";
 
-        for (const poly of boundaryOf(
-          target.id,
-        )) {
-          strokePath(
-            poly,
-            true,
-          );
+        for (const id of boundaryTargets) {
+          for (const poly of boundaryOf(
+            id,
+          )) {
+            strokePath(
+              poly,
+              true,
+            );
+          }
         }
 
         ctx.setLineDash([]);

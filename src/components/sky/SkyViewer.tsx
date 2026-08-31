@@ -3,7 +3,7 @@ import { Grid3x3, Maximize2, Minus, Plus, RotateCcw, Spline, Squircle, Tag } fro
 import { StarMap, type StarMapHandle } from "./StarMap";
 import { fitConstellation } from "@/lib/astro/fov";
 import type { ViewState } from "@/lib/astro/projection";
-import type { Constellation, LabelMode } from "@/lib/astro/types";
+import type { Constellation, LabelMode, Star } from "@/lib/astro/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

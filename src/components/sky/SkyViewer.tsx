@@ -75,6 +75,8 @@ export function SkyViewer({
         showBoundary={boundary}
         showGrid={grid}
         labelMode={labels ? labelModeWhenOn : "none"}
+        boundaryIds={boundaryIds}
+        labelStars={labels ? labelStars : undefined}
         emphasizeTarget={emphasizeTarget}
         className={cn("h-full w-full", mapClassName)}
       />

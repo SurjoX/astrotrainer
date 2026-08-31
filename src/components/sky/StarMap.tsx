@@ -794,11 +794,19 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       if (
         labelMode !== "none" &&
         (target ||
-          labelMode === "all")
+          labelMode === "all" ||
+          (labelStarsProp?.length ??
+            0) > 0)
       ) {
         let labelStars: Star[] = [];
 
         if (
+          labelStarsProp &&
+          labelStarsProp.length > 0
+        ) {
+          labelStars =
+            labelStarsProp;
+        } else if (
           labelMode ===
             "target" &&
           target

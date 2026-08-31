@@ -44,6 +44,8 @@ export function SkyViewer({
   className,
   mapClassName,
   labelModeWhenOn = "important",
+  boundaryIds,
+  labelStars,
 }: SkyViewerProps) {
   const mapRef = useRef<StarMapHandle>(null);
   const [lines, setLines] = useState(defaultLines);

@@ -3,7 +3,7 @@ import { Grid3x3, Maximize2, Minus, Plus, RotateCcw, Spline, Squircle, Tag } fro
 import { StarMap, type StarMapHandle } from "./StarMap";
 import { fitConstellation } from "@/lib/astro/fov";
 import type { ViewState } from "@/lib/astro/projection";
-import type { Constellation, LabelMode } from "@/lib/astro/types";
+import type { Constellation, LabelMode, Star } from "@/lib/astro/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,10 @@ interface SkyViewerProps {
   className?: string;
   mapClassName?: string;
   labelModeWhenOn?: LabelMode;
+  /** Constellation ids whose IAU boundary to draw (asterisms span several) */
+  boundaryIds?: string[];
+  /** Explicit stars to label instead of the target-derived selection */
+  labelStars?: Star[];
 }
 
 /**
@@ -40,6 +44,8 @@ export function SkyViewer({
   className,
   mapClassName,
   labelModeWhenOn = "important",
+  boundaryIds,
+  labelStars,
 }: SkyViewerProps) {
   const mapRef = useRef<StarMapHandle>(null);
   const [lines, setLines] = useState(defaultLines);
@@ -69,6 +75,8 @@ export function SkyViewer({
         showBoundary={boundary}
         showGrid={grid}
         labelMode={labels ? labelModeWhenOn : "none"}
+        boundaryIds={boundaryIds}
+        labelStars={labels ? labelStars : undefined}
         emphasizeTarget={emphasizeTarget}
         className={cn("h-full w-full", mapClassName)}
       />

@@ -39,6 +39,13 @@ export interface StarMapProps {
   /** J2000 equatorial coordinate grid */
   showGrid?: boolean;
   labelMode?: LabelMode;
+  /**
+   * Constellation ids whose official IAU boundary should be drawn instead of the
+   * target's own. Used by asterisms that span several constellations.
+   */
+  boundaryIds?: string[];
+  /** Explicit stars to label, overriding the target-derived selection. */
+  labelStars?: Star[];
   /** Dim stars that are not part of the target figure */
   emphasizeTarget?: boolean;
   interactive?: boolean;
@@ -224,6 +231,8 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       showBoundary = false,
       showGrid = false,
       labelMode = "none",
+      boundaryIds,
+      labelStars: labelStarsProp,
       emphasizeTarget = false,
       interactive = true,
       showCompass = true,
@@ -588,9 +597,13 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       // IAU BOUNDARY
       // ----------------------------------------------------------
 
+      const boundaryTargets =
+        boundaryIds ??
+        (target ? [target.id] : []);
+
       if (
         showBoundary &&
-        target
+        boundaryTargets.length > 0
       ) {
         ctx.lineWidth = 1.1;
 
@@ -601,13 +614,15 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
 
         ctx.lineJoin = "round";
 
-        for (const poly of boundaryOf(
-          target.id,
-        )) {
-          strokePath(
-            poly,
-            true,
-          );
+        for (const id of boundaryTargets) {
+          for (const poly of boundaryOf(
+            id,
+          )) {
+            strokePath(
+              poly,
+              true,
+            );
+          }
         }
 
         ctx.setLineDash([]);
@@ -779,11 +794,19 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       if (
         labelMode !== "none" &&
         (target ||
-          labelMode === "all")
+          labelMode === "all" ||
+          (labelStarsProp?.length ??
+            0) > 0)
       ) {
         let labelStars: Star[] = [];
 
         if (
+          labelStarsProp &&
+          labelStarsProp.length > 0
+        ) {
+          labelStars =
+            labelStarsProp;
+        } else if (
           labelMode ===
             "target" &&
           target
@@ -1086,6 +1109,8 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       size,
       showLines,
       showBoundary,
+      boundaryIds,
+      labelStarsProp,
       showGrid,
       labelMode,
       target,

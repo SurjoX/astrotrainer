@@ -21,6 +21,10 @@ interface SkyViewerProps {
   className?: string;
   mapClassName?: string;
   labelModeWhenOn?: LabelMode;
+  /** Constellation ids whose IAU boundary to draw (asterisms span several) */
+  boundaryIds?: string[];
+  /** Explicit stars to label instead of the target-derived selection */
+  labelStars?: Star[];
 }
 
 /**

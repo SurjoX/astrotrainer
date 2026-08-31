@@ -597,9 +597,13 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       // IAU BOUNDARY
       // ----------------------------------------------------------
 
+      const boundaryTargets =
+        boundaryIds ??
+        (target ? [target.id] : []);
+
       if (
         showBoundary &&
-        target
+        boundaryTargets.length > 0
       ) {
         ctx.lineWidth = 1.1;
 

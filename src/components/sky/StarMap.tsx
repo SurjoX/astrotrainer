@@ -39,6 +39,13 @@ export interface StarMapProps {
   /** J2000 equatorial coordinate grid */
   showGrid?: boolean;
   labelMode?: LabelMode;
+  /**
+   * Constellation ids whose official IAU boundary should be drawn instead of the
+   * target's own. Used by asterisms that span several constellations.
+   */
+  boundaryIds?: string[];
+  /** Explicit stars to label, overriding the target-derived selection. */
+  labelStars?: Star[];
   /** Dim stars that are not part of the target figure */
   emphasizeTarget?: boolean;
   interactive?: boolean;

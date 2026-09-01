@@ -43,9 +43,9 @@ export interface StarMapProps {
    * Constellation ids whose official IAU boundary should be drawn instead of the
    * target's own. Used by asterisms that span several constellations.
    */
-  boundaryIds?: string[];
+  boundaryIds?: string[] | undefined;
   /** Explicit stars to label, overriding the target-derived selection. */
-  labelStars?: Star[];
+  labelStars?: Star[] | undefined;
   /** Dim stars that are not part of the target figure */
   emphasizeTarget?: boolean;
   interactive?: boolean;

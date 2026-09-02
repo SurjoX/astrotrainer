@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as AsterismsIndexRouteImport } from './routes/asterisms.index'
+import { Route as AsterismsIdRouteImport } from './routes/asterisms.$id'
+import { Route as AsterismsPracticeRouteImport } from './routes/asterisms.practice'
 import { Route as ConstellationsIndexRouteImport } from './routes/constellations.index'
 import { Route as ConstellationsIdRouteImport } from './routes/constellations.$id'
 
@@ -36,6 +38,16 @@ const AsterismsIndexRoute = AsterismsIndexRouteImport.update({
   path: '/asterisms/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AsterismsIdRoute = AsterismsIdRouteImport.update({
+  id: '/asterisms/$id',
+  path: '/asterisms/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AsterismsPracticeRoute = AsterismsPracticeRouteImport.update({
+  id: '/asterisms/practice',
+  path: '/asterisms/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConstellationsIndexRoute = ConstellationsIndexRouteImport.update({
   id: '/constellations/',
   path: '/constellations/',
@@ -51,6 +63,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
+  '/asterisms/$id': typeof AsterismsIdRoute
+  '/asterisms/practice': typeof AsterismsPracticeRoute
   '/constellations/$id': typeof ConstellationsIdRoute
   '/asterisms/': typeof AsterismsIndexRoute
   '/constellations/': typeof ConstellationsIndexRoute
@@ -59,6 +73,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
+  '/asterisms/$id': typeof AsterismsIdRoute
+  '/asterisms/practice': typeof AsterismsPracticeRoute
   '/constellations/$id': typeof ConstellationsIdRoute
   '/asterisms': typeof AsterismsIndexRoute
   '/constellations': typeof ConstellationsIndexRoute
@@ -68,6 +84,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
+  '/asterisms/$id': typeof AsterismsIdRoute
+  '/asterisms/practice': typeof AsterismsPracticeRoute
   '/constellations/$id': typeof ConstellationsIdRoute
   '/asterisms/': typeof AsterismsIndexRoute
   '/constellations/': typeof ConstellationsIndexRoute
@@ -78,6 +96,8 @@ export interface FileRouteTypes {
     | '/'
     | '/practice'
     | '/progress'
+    | '/asterisms/$id'
+    | '/asterisms/practice'
     | '/constellations/$id'
     | '/asterisms/'
     | '/constellations/'
@@ -86,6 +106,8 @@ export interface FileRouteTypes {
     | '/'
     | '/practice'
     | '/progress'
+    | '/asterisms/$id'
+    | '/asterisms/practice'
     | '/constellations/$id'
     | '/asterisms'
     | '/constellations'
@@ -94,6 +116,8 @@ export interface FileRouteTypes {
     | '/'
     | '/practice'
     | '/progress'
+    | '/asterisms/$id'
+    | '/asterisms/practice'
     | '/constellations/$id'
     | '/asterisms/'
     | '/constellations/'
@@ -103,6 +127,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PracticeRoute: typeof PracticeRoute
   ProgressRoute: typeof ProgressRoute
+  AsterismsIdRoute: typeof AsterismsIdRoute
+  AsterismsPracticeRoute: typeof AsterismsPracticeRoute
   ConstellationsIdRoute: typeof ConstellationsIdRoute
   AsterismsIndexRoute: typeof AsterismsIndexRoute
   ConstellationsIndexRoute: typeof ConstellationsIndexRoute
@@ -138,6 +164,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AsterismsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/asterisms/$id': {
+      id: '/asterisms/$id'
+      path: '/asterisms/$id'
+      fullPath: '/asterisms/$id'
+      preLoaderRoute: typeof AsterismsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/asterisms/practice': {
+      id: '/asterisms/practice'
+      path: '/asterisms/practice'
+      fullPath: '/asterisms/practice'
+      preLoaderRoute: typeof AsterismsPracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/constellations/': {
       id: '/constellations/'
       path: '/constellations'
@@ -159,6 +199,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PracticeRoute: PracticeRoute,
   ProgressRoute: ProgressRoute,
+  AsterismsIdRoute: AsterismsIdRoute,
+  AsterismsPracticeRoute: AsterismsPracticeRoute,
   ConstellationsIdRoute: ConstellationsIdRoute,
   AsterismsIndexRoute: AsterismsIndexRoute,
   ConstellationsIndexRoute: ConstellationsIndexRoute,

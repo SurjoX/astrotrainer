@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useProgress } from "@/hooks/useProgress";
+import { useAsterismProgress } from "@/hooks/useAsterismProgress";
 import { Button } from "@/components/ui/button";
 import { getConstellation } from "@/lib/astro/catalog";
+import { getAsterism } from "@/lib/astro/asterisms";
 import { accuracy, ranked, resetProgress, weakConstellations } from "@/lib/progress";
+import { asterismAccuracy, rankedAsterisms } from "@/lib/asterismProgress";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/progress")({

@@ -73,6 +73,7 @@ function PracticePage() {
   const [finished, setFinished] = useState(false);
   const [remaining, setRemaining] = useState(TIME_LIMIT_MS);
   const [textInput, setTextInput] = useState("");
+  const [constellationSelected, setConstellationSelected] = useState(false);
   const startedAt = useRef(0);
 
   const weak = useMemo(() => weakConstellations(progress, 8), [progress]);

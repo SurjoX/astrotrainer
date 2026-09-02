@@ -162,6 +162,7 @@ function PracticePage() {
     setFinished(false);
     setAnswered(null);
     setQuestion(null);
+    setConstellationSelected(false);
   };
 
   if (finished) {

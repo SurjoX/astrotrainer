@@ -17,16 +17,16 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/practice")({
   head: () => ({
     meta: [
-      { title: "Practice — Constellation Identification | AstroTrainer" },
+      { title: "Practice — AstroTrainer" },
       {
         name: "description",
         content:
-          "Identify constellations on dynamically generated star maps at beginner, intermediate and advanced difficulty, with a full educational reveal after every answer.",
+          "Train your recognition skills with constellations and asterisms at beginner, intermediate and advanced difficulty, with a full educational reveal after every answer.",
       },
-      { property: "og:title", content: "Practice — Constellation Identification | AstroTrainer" },
+      { property: "og:title", content: "Practice — AstroTrainer" },
       {
         property: "og:description",
-        content: "Adaptive constellation recognition drills on real star fields.",
+        content: "Adaptive constellation and asterism recognition drills on real star fields.",
       },
     ],
   }),
@@ -73,6 +73,7 @@ function PracticePage() {
   const [finished, setFinished] = useState(false);
   const [remaining, setRemaining] = useState(TIME_LIMIT_MS);
   const [textInput, setTextInput] = useState("");
+  const [constellationSelected, setConstellationSelected] = useState(false);
   const startedAt = useRef(0);
 
   const weak = useMemo(() => weakConstellations(progress, 8), [progress]);
@@ -161,6 +162,7 @@ function PracticePage() {
     setFinished(false);
     setAnswered(null);
     setQuestion(null);
+    setConstellationSelected(false);
   };
 
   if (finished) {

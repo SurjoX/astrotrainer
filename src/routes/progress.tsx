@@ -134,3 +134,94 @@ function ProgressPage() {
     </main>
   );
 }
+/** Asterism statistics, stored and displayed separately from constellations. */
+function AsterismProgressSection() {
+  const { progress, ready } = useAsterismProgress();
+  const rows = rankedAsterisms(progress).slice(0, 10);
+  const has = progress.totalQuestions > 0;
+
+  return (
+    <section className="mt-10">
+      <h2 className="label-caps">Asterisms</h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Star patterns that are not official IAU constellations. Tracked separately from
+        constellation mastery.
+      </p>
+
+      {ready && !has ? (
+        <div className="panel mt-3 p-4">
+          <p className="text-sm text-muted-foreground">
+            No asterism attempts yet — try the Big Dipper or the Summer Triangle.
+          </p>
+          <Button asChild size="sm" className="mt-3" variant="secondary">
+            <Link to="/asterisms/practice">Practice asterisms</Link>
+          </Button>
+        </div>
+      ) : (
+        <>
+          <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              ["Attempts", String(progress.totalQuestions)],
+              ["Correct", String(progress.correct)],
+              ["Accuracy", `${asterismAccuracy(progress.correct, progress.totalQuestions)}%`],
+              ["Streak", String(progress.currentStreak)],
+              ["Best streak", String(progress.bestStreak)],
+              ["Best session", String(progress.bestSessionScore)],
+            ].map(([label, value]) => (
+              <div key={label} className="panel p-3">
+                <dt className="label-caps">{label}</dt>
+                <dd className="mt-1 font-display text-xl font-semibold">{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            {(["beginner", "intermediate", "advanced"] as const).map((d) => {
+              const s = progress.byDifficulty[d];
+              return (
+                <div key={d} className="panel p-3">
+                  <p className="label-caps capitalize">{d}</p>
+                  <p className="mt-1 font-mono text-sm text-muted-foreground">
+                    {s.correct}/{s.attempts} · {asterismAccuracy(s.correct, s.attempts)}%
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {rows.length > 0 && (
+            <ul className="mt-4 space-y-2">
+              {rows.map((r) => (
+                <li key={r.id} className="panel flex items-center gap-3 p-3">
+                  <Link
+                    to="/asterisms/$id"
+                    params={{ id: r.id }}
+                    className="w-40 shrink-0 truncate text-sm hover:text-primary"
+                  >
+                    {getAsterism(r.id)?.name ?? r.id}
+                  </Link>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all",
+                        r.mastery >= 80
+                          ? "bg-success"
+                          : r.mastery >= 50
+                            ? "bg-primary"
+                            : "bg-accent",
+                      )}
+                      style={{ width: `${r.mastery}%` }}
+                    />
+                  </div>
+                  <span className="w-24 shrink-0 text-right font-mono text-xs text-muted-foreground">
+                    {r.mastery}% · {r.stat.attempts}×
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </section>
+  );
+}

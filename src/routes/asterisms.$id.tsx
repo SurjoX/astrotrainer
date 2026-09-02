@@ -111,7 +111,9 @@ function AsterismDetail() {
           <ul className="mt-2 space-y-1 text-sm">
             {asterism.stars.map((s) => (
               <li key={s.id} className="flex justify-between gap-3">
-                <span>{s.name ?? [s.bayer, s.constellation].filter(Boolean).join(" ") || `HIP ${s.hip}`}</span>
+                <span>
+                  {s.name ?? ([s.bayer, s.constellation].filter(Boolean).join(" ") || `HIP ${s.hip}`)}
+                </span>
                 <span className="font-mono text-xs text-muted-foreground">
                   mag {s.magnitude.toFixed(2)}
                 </span>

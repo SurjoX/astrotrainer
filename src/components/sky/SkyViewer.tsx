@@ -22,9 +22,9 @@ interface SkyViewerProps {
   mapClassName?: string;
   labelModeWhenOn?: LabelMode;
   /** Constellation ids whose IAU boundary to draw (asterisms span several) */
-  boundaryIds?: string[];
+  boundaryIds?: string[] | undefined;
   /** Explicit stars to label instead of the target-derived selection */
-  labelStars?: Star[];
+  labelStars?: Star[] | undefined;
 }
 
 /**

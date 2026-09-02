@@ -119,6 +119,8 @@ function ProgressPage() {
         </ul>
       </section>
 
+      <AsterismProgressSection />
+
       <Button
         variant="ghost"
         size="sm"

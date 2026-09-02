@@ -44,6 +44,9 @@ function ProgressPage() {
         <Button asChild className="mt-6">
           <Link to="/practice">Start practising</Link>
         </Button>
+        <div className="mt-10 text-left">
+          <AsterismProgressSection />
+        </div>
       </main>
     );
   }

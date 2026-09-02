@@ -82,6 +82,30 @@ function Index() {
       </section>
 
       <section className="mt-10">
+        <h2 className="label-caps">Asterisms</h2>
+        <div className="panel mt-3 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-display text-lg">Patterns beyond the 88</p>
+            <p className="mt-1 max-w-prose text-sm text-muted-foreground">
+              Asterisms are recognisable star patterns that are not official IAU
+              constellations — some sit inside one constellation, like the Big Dipper, and
+              others span several, like the Summer Triangle. Train them separately from
+              constellation identification.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 sm:shrink-0">
+            <Button asChild variant="secondary">
+              <Link to="/asterisms">Browse Asterisms</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/asterisms/practice">Practice Asterisms</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-10">
+
         <h2 className="label-caps">Your dashboard</h2>
         {ready && !hasHistory ? (
           <div className="panel mt-3 p-6">

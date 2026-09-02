@@ -17,16 +17,16 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/practice")({
   head: () => ({
     meta: [
-      { title: "Practice — Constellation Identification | AstroTrainer" },
+      { title: "Practice — AstroTrainer" },
       {
         name: "description",
         content:
-          "Identify constellations on dynamically generated star maps at beginner, intermediate and advanced difficulty, with a full educational reveal after every answer.",
+          "Train your recognition skills with constellations and asterisms at beginner, intermediate and advanced difficulty, with a full educational reveal after every answer.",
       },
-      { property: "og:title", content: "Practice — Constellation Identification | AstroTrainer" },
+      { property: "og:title", content: "Practice — AstroTrainer" },
       {
         property: "og:description",
-        content: "Adaptive constellation recognition drills on real star fields.",
+        content: "Adaptive constellation and asterism recognition drills on real star fields.",
       },
     ],
   }),

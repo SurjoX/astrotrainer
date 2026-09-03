@@ -15,6 +15,8 @@ import { accuracy, recordAnswer, recordSession, scoreFor, weakConstellations } f
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/practice")({
+  validateSearch: (search: Record<string, unknown>): { category?: "constellations" } =>
+    search["category"] === "constellations" ? { category: "constellations" } : {},
   head: () => ({
     meta: [
       { title: "Practice — AstroTrainer" },

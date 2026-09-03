@@ -174,98 +174,127 @@ function PracticePage() {
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
         <h1 className="font-display text-3xl font-bold">Practice</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Ten questions per session. Difficulty changes the challenge before you answer — never
-          the explanation afterwards.
+          Train your recognition skills with constellations and asterisms.
         </p>
 
-        <section className="mt-8">
-          <h2 className="label-caps">Mode</h2>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        {!constellationSelected ? (
+          <section className="mt-8 grid gap-2 sm:grid-cols-2">
             <button
-              onClick={() => setMode("constellation")}
-              className={cn(
-                "panel p-4 text-left transition-colors",
-                mode === "constellation" ? "border-primary/60 bg-primary/10" : "hover:bg-secondary/50",
-              )}
+              onClick={() => setConstellationSelected(true)}
+              className="panel p-4 text-left transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <span className="font-display text-base font-semibold">Constellation Identification</span>
+              <span className="font-display text-base font-semibold">Constellation Practice</span>
               <span className="mt-0.5 block text-xs text-muted-foreground">
-                Recognise the constellation shown in the star field
+                Practice identifying the 88 official IAU constellations.
               </span>
             </button>
-            <button
-              onClick={() => setMode("iau-images")}
-              className={cn(
-                "panel p-4 text-left transition-colors",
-                mode === "iau-images" ? "border-primary/60 bg-primary/10" : "hover:bg-secondary/50",
-              )}
+            <Link
+              to="/asterisms/practice"
+              className="panel block p-4 text-left transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <span className="font-display text-base font-semibold">Official IAU Images</span>
+              <span className="font-display text-base font-semibold">Asterism Practice</span>
               <span className="mt-0.5 block text-xs text-muted-foreground">
-                Identify constellations from official IAU constellation artwork
+                Practice identifying recognizable star patterns and asterisms.
               </span>
-            </button>
-          </div>
-        </section>
-
-        <section className="mt-6">
-          <h2 className="label-caps">Difficulty</h2>
-          {mode === "iau-images" ? (
-            <p className="mt-2 text-xs text-muted-foreground">
-              IAU Image mode uses multiple-choice with balanced difficulty.
+            </Link>
+          </section>
+        ) : (
+          <>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Ten questions per session. Difficulty changes the challenge before you answer — never
+              the explanation afterwards.
             </p>
-          ) : (
-            <div className="mt-2 grid gap-2 sm:grid-cols-3">
-              {DIFFICULTIES.map((d) => (
+
+            <section className="mt-8">
+              <h2 className="label-caps">Mode</h2>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <button
-                  key={d.id}
-                  onClick={() => setDifficulty(d.id)}
+                  onClick={() => setMode("constellation")}
                   className={cn(
                     "panel p-4 text-left transition-colors",
-                    difficulty === d.id ? "border-primary/60 bg-primary/10" : "hover:bg-secondary/50",
+                    mode === "constellation" ? "border-primary/60 bg-primary/10" : "hover:bg-secondary/50",
                   )}
                 >
-                  <span className="font-display text-base font-semibold">{d.label}</span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">{d.blurb}</span>
+                  <span className="font-display text-base font-semibold">Constellation Identification</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Recognise the constellation shown in the star field
+                  </span>
                 </button>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="panel mt-6 divide-y divide-border/70">
-          {mode === "constellation" && (
-            <>
-              <label className="flex items-center justify-between gap-4 p-4">
-                <span>
-                  <span className="text-sm font-medium">Timed practice</span>
-                  <span className="block text-xs text-muted-foreground">
-                    30 seconds per question; running out counts as incorrect and reveals the answer.
+                <button
+                  onClick={() => setMode("iau-images")}
+                  className={cn(
+                    "panel p-4 text-left transition-colors",
+                    mode === "iau-images" ? "border-primary/60 bg-primary/10" : "hover:bg-secondary/50",
+                  )}
+                >
+                  <span className="font-display text-base font-semibold">Official IAU Images</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Identify constellations from official IAU constellation artwork
                   </span>
-                </span>
-                <Switch checked={timed} onCheckedChange={setTimed} />
-              </label>
-              <label className="flex items-center justify-between gap-4 p-4">
-                <span>
-                  <span className="text-sm font-medium">Practice weak constellations</span>
-                  <span className="block text-xs text-muted-foreground">
-                    {weak.length >= 4
-                      ? weak
-                          .slice(0, 3)
-                          .map((w) => `${getConstellation(w.id)?.name ?? w.id} — ${w.accuracy}%`)
-                          .join(" · ")
-                      : "Not enough history yet — sessions stay random until you have practised more."}
-                  </span>
-                </span>
-                <Switch checked={weakMode} onCheckedChange={setWeakMode} disabled={weak.length < 4} />
-              </label>
-            </>
-          )}
-        </section>
+                </button>
+              </div>
+            </section>
 
-        <Button size="lg" className="mt-6 w-full sm:w-auto" onClick={nextQuestion}>
-          Start session
-        </Button>
+            <section className="mt-6">
+              <h2 className="label-caps">Difficulty</h2>
+              {mode === "iau-images" ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  IAU Image mode uses multiple-choice with balanced difficulty.
+                </p>
+              ) : (
+                <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                  {DIFFICULTIES.map((d) => (
+                    <button
+                      key={d.id}
+                      onClick={() => setDifficulty(d.id)}
+                      className={cn(
+                        "panel p-4 text-left transition-colors",
+                        difficulty === d.id ? "border-primary/60 bg-primary/10" : "hover:bg-secondary/50",
+                      )}
+                    >
+                      <span className="font-display text-base font-semibold">{d.label}</span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">{d.blurb}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="panel mt-6 divide-y divide-border/70">
+              {mode === "constellation" && (
+                <>
+                  <label className="flex items-center justify-between gap-4 p-4">
+                    <span>
+                      <span className="text-sm font-medium">Timed practice</span>
+                      <span className="block text-xs text-muted-foreground">
+                        30 seconds per question; running out counts as incorrect and reveals the answer.
+                      </span>
+                    </span>
+                    <Switch checked={timed} onCheckedChange={setTimed} />
+                  </label>
+                  <label className="flex items-center justify-between gap-4 p-4">
+                    <span>
+                      <span className="text-sm font-medium">Practice weak constellations</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {weak.length >= 4
+                          ? weak
+                              .slice(0, 3)
+                              .map((w) => `${getConstellation(w.id)?.name ?? w.id} — ${w.accuracy}%`)
+                              .join(" · ")
+                          : "Not enough history yet — sessions stay random until you have practised more."}
+                      </span>
+                    </span>
+                    <Switch checked={weakMode} onCheckedChange={setWeakMode} disabled={weak.length < 4} />
+                  </label>
+                </>
+              )}
+            </section>
+
+            <Button size="lg" className="mt-6 w-full sm:w-auto" onClick={nextQuestion}>
+              Start session
+            </Button>
+          </>
+        )}
       </main>
     );
   }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Grid3x3, Maximize2, Minus, Plus, RotateCcw, Spline, Squircle, Tag } from "lucide-react";
+import { Grid3x3, Minus, Plus, RotateCcw, Spline, Squircle, Tag } from "lucide-react";
 import { StarMap, type StarMapHandle } from "./StarMap";
 import { fitConstellation } from "@/lib/astro/fov";
 import type { ViewState } from "@/lib/astro/projection";

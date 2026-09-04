@@ -1486,7 +1486,32 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
             height: size.h,
           }}
         />
+        {showCompass && interactive && (
+          <div
+            role="slider"
+            aria-label="Rotate sky map"
+            aria-valuenow={Math.round(localView.rotation)}
+            aria-valuemin={-180}
+            aria-valuemax={180}
+            tabIndex={0}
+            title="Drag to rotate, click to reset rotation"
+            className="absolute z-10 cursor-grab rounded-full active:cursor-grabbing"
+            style={{
+              right: 18,
+              bottom: 18,
+              width: 56,
+              height: 56,
+            }}
+            onPointerDown={onCompassDown}
+            onPointerMove={onCompassMove}
+            onPointerUp={onCompassUp}
+            onPointerCancel={() => {
+              compassRef.current = null;
+            }}
+          />
+        )}
       </div>
+
     );
   },
 );

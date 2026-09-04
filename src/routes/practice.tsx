@@ -65,6 +65,9 @@ interface Answered {
 
 function PracticePage() {
   const { progress } = useProgress();
+  const navigate = Route.useNavigate();
+  const { category } = Route.useSearch();
+  const constellationSelected = category === "constellations";
   const [mode, setMode] = useState<PracticeMode>("constellation");
   const [difficulty, setDifficulty] = useState<Difficulty>("beginner");
   const [timed, setTimed] = useState(false);
@@ -75,7 +78,6 @@ function PracticePage() {
   const [finished, setFinished] = useState(false);
   const [remaining, setRemaining] = useState(TIME_LIMIT_MS);
   const [textInput, setTextInput] = useState("");
-  const [constellationSelected, setConstellationSelected] = useState(false);
   const startedAt = useRef(0);
 
   const weak = useMemo(() => weakConstellations(progress, 8), [progress]);
@@ -164,7 +166,7 @@ function PracticePage() {
     setFinished(false);
     setAnswered(null);
     setQuestion(null);
-    setConstellationSelected(false);
+    void navigate({ to: "/practice", search: {} });
   };
 
   if (finished) {
@@ -181,15 +183,16 @@ function PracticePage() {
 
         {!constellationSelected ? (
           <section className="mt-8 grid gap-2 sm:grid-cols-2">
-            <button
-              onClick={() => setConstellationSelected(true)}
-              className="panel p-4 text-left transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            <Link
+              to="/practice"
+              search={{ category: "constellations" }}
+              className="panel block p-4 text-left transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <span className="font-display text-base font-semibold">Constellation Practice</span>
               <span className="mt-0.5 block text-xs text-muted-foreground">
                 Practice identifying the 88 official IAU constellations.
               </span>
-            </button>
+            </Link>
             <Link
               to="/asterisms/practice"
               className="panel block p-4 text-left transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"

@@ -91,9 +91,7 @@ export function SkyViewer({
           <Button variant="ghost" size="icon" className="size-8" aria-label="Reset view" onClick={() => mapRef.current?.reset()}>
             <RotateCcw className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="size-8" aria-label="Fit constellation" onClick={() => mapRef.current?.fit()}>
-            <Maximize2 className="size-4" />
-          </Button>
+
         </div>
         {!lockToggles && (
           <div className="pointer-events-auto flex items-center gap-1 rounded-md border border-border/70 bg-background/70 p-1 backdrop-blur">

@@ -80,6 +80,31 @@ function Index() {
       </section>
 
       <section className="mt-10">
+        <h2 className="label-caps">Constellations</h2>
+        <div className="panel mt-3 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-display text-lg">The 88 official IAU constellations</p>
+            <p className="mt-1 max-w-prose text-sm text-muted-foreground">
+              Every constellation is drawn from real J2000 coordinates and magnitudes, with the
+              modern Stellarium stick figures, official IAU boundaries and an equatorial grid.
+              Browse the atlas or drill recognition at three difficulty levels.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 sm:shrink-0">
+            <Button asChild variant="secondary">
+              <Link to="/constellations">Browse Constellations</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/practice" search={{ category: "constellations" }}>
+                Practice Constellations
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+
+      <section className="mt-10">
         <h2 className="label-caps">Asterisms</h2>
         <div className="panel mt-3 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>

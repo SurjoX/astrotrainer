@@ -63,13 +63,11 @@ function Index() {
             <Button asChild size="lg">
               <Link to="/practice">Start Practice</Link>
             </Button>
-            <Button asChild size="lg" variant="secondary">
-              <Link to="/constellations">Explore Constellations</Link>
-            </Button>
             <Button asChild size="lg" variant="ghost">
               <Link to="/progress">View Progress</Link>
             </Button>
           </div>
+
         </div>
         <div className="panel overflow-hidden">
           <SkyViewer

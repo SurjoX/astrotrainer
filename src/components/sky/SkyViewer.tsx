@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Grid3x3, Minus, Plus, RotateCcw, Spline, Squircle, Tag } from "lucide-react";
-import { StarMap, type StarMapHandle } from "./StarMap";
+import { StarMap, type SkyMarker, type StarMapHandle } from "./StarMap";
 import { fitConstellation } from "@/lib/astro/fov";
 import type { ViewState } from "@/lib/astro/projection";
 import type { Constellation, LabelMode, Star } from "@/lib/astro/types";
@@ -21,6 +21,8 @@ interface SkyViewerProps {
   className?: string;
   mapClassName?: string;
   labelModeWhenOn?: LabelMode;
+  onSkyClick?: (position: { ra: number; dec: number }) => void;
+  markers?: SkyMarker[] | undefined;
   /** Constellation ids whose IAU boundary to draw (asterisms span several) */
   boundaryIds?: string[] | undefined;
   /** Explicit stars to label instead of the target-derived selection */
@@ -44,6 +46,8 @@ export function SkyViewer({
   className,
   mapClassName,
   labelModeWhenOn = "important",
+  onSkyClick,
+  markers,
   boundaryIds,
   labelStars,
 }: SkyViewerProps) {
@@ -65,7 +69,7 @@ export function SkyViewer({
   }, [view, constellation]);
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative min-w-0 w-full max-w-full", className)}>
       <StarMap
         ref={mapRef}
         target={constellation ?? null}
@@ -78,10 +82,12 @@ export function SkyViewer({
         boundaryIds={boundaryIds}
         labelStars={labels ? labelStars : undefined}
         emphasizeTarget={emphasizeTarget}
+        onSkyClick={onSkyClick}
+        markers={markers}
         className={cn("h-full w-full", mapClassName)}
       />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-1.5 p-2 sm:p-3">
-        <div className="pointer-events-auto flex items-center gap-1 rounded-md border border-border/70 bg-background/70 p-1 backdrop-blur">
+        <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-md border border-border/70 bg-background/70 p-1 backdrop-blur">
           <Button variant="ghost" size="icon" className="size-8" aria-label="Zoom in" onClick={() => mapRef.current?.zoomBy(1.35)}>
             <Plus className="size-4" />
           </Button>
@@ -94,7 +100,7 @@ export function SkyViewer({
 
         </div>
         {!lockToggles && (
-          <div className="pointer-events-auto flex items-center gap-1 rounded-md border border-border/70 bg-background/70 p-1 backdrop-blur">
+          <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-md border border-border/70 bg-background/70 p-1 backdrop-blur">
             <Button
               variant="ghost"
               size="sm"

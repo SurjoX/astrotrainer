@@ -1,0 +1,27 @@
+[
+  {
+    "title": "File:Messier3 - HST - Potw1914a.jpg",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Messier3_-_HST_-_Potw1914a.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "thumburl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Messier3_-_HST_-_Potw1914a.jpg/3840px-Messier3_-_HST_-_Potw1914a.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "width": 4209,
+    "height": 3680,
+    "size": 8440505,
+    "mime": "image/jpeg",
+    "mediatype": "BITMAP",
+    "categories": [
+      "Category:CC-BY-4.0",
+      "Category:Hubble images of star clusters",
+      "Category:Messier 3",
+      "Category:Wide Field Camera 3 images"
+    ],
+    "description": "Blue rejuvenation Globular clusters are inherently beautiful objects, but the subject of this NASA/ESA Hubble Space Telescope image, Messier 3, is commonly acknowledged to be one of the most beautiful of them all. Containing an incredible half a million stars, this eight-billion-year-old cosmic bauble is one of the largest and brightest globular clusters ever discovered. However, what makes Messier 3 extra special is its unusually large population of variable stars — stars that fluctuate in brightness over time. New variable stars continue to be discovered in this sparkling stellar nest to this day, but so far we know of 274, the highest number found in any globular cluster by far. At least 170 of these are of a special variety called RR Lyrae variables, which pulse with a period directly related to their intrinsic brightness. If astronomers know how bright a star truly is based on its mass and classification, and they know how bright it appears to be from our viewpoint here on Earth, they can thus work out its distance from us. For this reason, RR Lyrae stars are known as standard candles — objects of known luminosity whose distance and position can be used to help us understand more about vast celestial distances and the scale of the cosmos. Messier 3 also contains a relatively high number of so-called blue stragglers, which are shown quite clearly in this Hubble image. These are blue main sequence stars that appear to be young because they are bluer and more luminous than other stars in the cluster. As all stars in globular clusters are believed to have formed together and thus be roughly the same age. Only a difference in mass can give these stars a different colour: a red, old star can appear bluer when it acquires more mass, for instance stripping it from a nearby star. The extra mass changes it into a bluer star, which makes us think it is younger than it really is. Credit: ESA/Hubble &amp; NASA, G. Piotto et al. Coordinates Position (RA): 13 42 11.80 Position (Dec): 28° 22' 31.69\" Field of view: 2.78 x 2.43 arcminutes Orientation: North is 10.5° right of vertical Colours &amp; filters Band Wavelength Telescope Optical U 336 nm Hubble Space Telescope WFC3 Ultraviolet UV 275 nm Hubble Space Telescope WFC3 Optical B 438 nm Hubble Space Telescope WFC3 Ultraviolet UV 275 nm Hubble Space Telescope WFC3 Optical U 336 nm Hubble Space Telescope WFC3 Optical V 606 nm Hubble Space Telescope WFC3 Optical B 438 nm Hubble Space Telescope WFC3 Optical V 606 nm Hubble Space Telescope WFC3 Optical I 814 nm Hubble Space Telescope WFC3 .",
+    "artist": "Credit: ESA/Hubble &amp; NASA, G. Piotto et al.",
+    "credit": "https://www.spacetelescope.org/images/potw1914a/ https://cdn.spacetelescope.org/archives/images/large/potw1914a.jpg",
+    "license": "cc-by-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0",
+    "date": "8 April 2019, 06:00 (Release)",
+    "messier": 3,
+    "score": 60,
+    "local_file": "candidates/M3/01.jpg"
+  }
+]

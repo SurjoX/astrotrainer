@@ -202,6 +202,15 @@ function PracticePage() {
                 Practice identifying recognizable star patterns and asterisms.
               </span>
             </Link>
+            <Link
+              to="/messier/practice"
+              className="panel block p-4 text-left transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <span className="font-display text-base font-semibold">Messier Practice</span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                Identify and locate galaxies, nebulae and clusters from M1 through M110.
+              </span>
+            </Link>
           </section>
         ) : (
           <>

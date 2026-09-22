@@ -52,7 +52,16 @@ export interface StarMapProps {
   showCompass?: boolean;
   className?: string;
   onStarClick?: (star: Star) => void;
+  onSkyClick?: ((position: { ra: number; dec: number }) => void) | undefined;
+  markers?: SkyMarker[] | undefined;
   onViewChange?: (view: ViewState) => void;
+}
+
+export interface SkyMarker {
+  ra: number;
+  dec: number;
+  color?: string;
+  label?: string;
 }
 
 function starColor(spect: string | null): string {
@@ -238,6 +247,8 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       showCompass = true,
       className,
       onStarClick,
+      onSkyClick,
+      markers = [],
       onViewChange,
     },
     ref,
@@ -260,6 +271,15 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       x: number;
       y: number;
       moved: boolean;
+    } | null>(null);
+
+    const touchPointsRef = useRef(
+      new Map<number, { x: number; y: number }>(),
+    );
+    const pinchRef = useRef<{
+      distance: number;
+      centerX: number;
+      centerY: number;
     } | null>(null);
 
     useEffect(() => {
@@ -787,6 +807,30 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
         ctx.stroke();
       }
 
+      for (const marker of markers) {
+        const p = proj.project(marker.ra, marker.dec);
+        if (!p) continue;
+        const color = marker.color ?? "#f7c66a";
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(p.x - 12, p.y);
+        ctx.lineTo(p.x + 12, p.y);
+        ctx.moveTo(p.x, p.y - 12);
+        ctx.lineTo(p.x, p.y + 12);
+        ctx.stroke();
+        if (marker.label) {
+          ctx.font = "600 11px ui-sans-serif, system-ui, sans-serif";
+          ctx.fillText(marker.label, p.x + 12, p.y - 10);
+        }
+        ctx.restore();
+      }
+
       // ----------------------------------------------------------
       // LABELS
       // ----------------------------------------------------------
@@ -1115,6 +1159,7 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       labelMode,
       target,
       emphasizeTarget,
+      markers,
       showCompass,
     ]);
 
@@ -1275,11 +1320,31 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       if (!interactive)
         return;
 
+      if (e.pointerType === "touch") {
+        touchPointsRef.current.set(e.pointerId, {
+          x: e.clientX,
+          y: e.clientY,
+        });
+      }
+
       (
         e.target as HTMLElement
       ).setPointerCapture?.(
         e.pointerId,
       );
+
+      if (e.pointerType === "touch" && touchPointsRef.current.size >= 2) {
+        const points = [...touchPointsRef.current.values()];
+        const first = points[0]!;
+        const second = points[1]!;
+        pinchRef.current = {
+          distance: Math.hypot(second.x - first.x, second.y - first.y),
+          centerX: (first.x + second.x) / 2,
+          centerY: (first.y + second.y) / 2,
+        };
+        dragRef.current = null;
+        return;
+      }
 
       dragRef.current = {
         x: e.clientX,
@@ -1291,6 +1356,42 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
     const onPointerMove = (
       e: React.PointerEvent,
     ) => {
+      if (e.pointerType === "touch") {
+        const point = touchPointsRef.current.get(e.pointerId);
+        if (point) {
+          point.x = e.clientX;
+          point.y = e.clientY;
+        }
+
+        if (pinchRef.current && touchPointsRef.current.size >= 2) {
+          const points = [...touchPointsRef.current.values()];
+          const first = points[0]!;
+          const second = points[1]!;
+          const distance = Math.hypot(second.x - first.x, second.y - first.y);
+          const previous = pinchRef.current;
+
+          if (distance > 0 && previous.distance > 0) {
+            const rawRatio = distance / previous.distance;
+            const dampedRatio = Math.min(1.06, Math.max(0.94, Math.pow(rawRatio, 0.35)));
+            const rect = wrapRef.current?.getBoundingClientRect();
+            if (rect) {
+              zoomRef.current(
+                dampedRatio,
+                previous.centerX - rect.left,
+                previous.centerY - rect.top,
+              );
+            }
+          }
+
+          pinchRef.current = {
+            distance,
+            centerX: (first.x + second.x) / 2,
+            centerY: (first.y + second.y) / 2,
+          };
+          return;
+        }
+      }
+
       const drag =
         dragRef.current;
 
@@ -1348,16 +1449,24 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
     const onPointerUp = (
       e: React.PointerEvent,
     ) => {
+      if (e.pointerType === "touch") {
+        const drag = dragRef.current;
+        const wasPinching = pinchRef.current !== null;
+        touchPointsRef.current.delete(e.pointerId);
+        if (touchPointsRef.current.size < 2) {
+          pinchRef.current = null;
+        }
+        dragRef.current = null;
+        if (wasPinching || !drag || drag.moved) return;
+        dragRef.current = drag;
+      }
+
       const drag =
         dragRef.current;
 
       dragRef.current = null;
 
-      if (
-        !drag ||
-        drag.moved ||
-        !onStarClick
-      ) {
+      if (!drag || drag.moved || (!onStarClick && !onSkyClick)) {
         return;
       }
 
@@ -1380,6 +1489,10 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
           e.clientY -
             rect.top,
         );
+
+        onSkyClick?.(sky);
+
+        if (!onStarClick) return;
 
       let best: Star | null =
         null;
@@ -1524,7 +1637,7 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
       <div
         ref={wrapRef}
         className={cn(
-          "relative touch-none overflow-hidden bg-[var(--sky)] select-none",
+          "relative min-w-0 w-full max-w-full touch-none overflow-hidden bg-[var(--sky)] select-none",
           interactive &&
             "cursor-grab active:cursor-grabbing",
           className,
@@ -1538,16 +1651,21 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(
         onPointerUp={
           onPointerUp
         }
-        onPointerCancel={() =>
-          (dragRef.current =
-            null)
-        }
+        onPointerCancel={(e) => {
+          if (e.pointerType === "touch") {
+            touchPointsRef.current.delete(e.pointerId);
+            if (touchPointsRef.current.size < 2) pinchRef.current = null;
+          }
+          dragRef.current = null;
+        }}
       >
         <canvas
           ref={canvasRef}
           style={{
-            width: size.w,
-            height: size.h,
+            width: "100%",
+            height: "100%",
+            maxWidth: "100%",
+            display: "block",
           }}
         />
         {showCompass && interactive && (

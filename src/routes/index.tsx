@@ -128,6 +128,22 @@ function Index() {
       </section>
 
       <section className="mt-10">
+        <h2 className="label-caps">Messier Objects</h2>
+        <div className="panel mt-3 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-display text-lg">The complete M1–M110 deep-sky catalog</p>
+            <p className="mt-1 max-w-prose text-sm text-muted-foreground">
+              Browse galaxies, nebulae and star clusters with real J2000 positions, local image support and focused practice modes.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 sm:shrink-0">
+            <Button asChild variant="secondary"><Link to="/messier">Browse Messier</Link></Button>
+            <Button asChild><Link to="/messier/practice">Practice Messier</Link></Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-10">
 
         <h2 className="label-caps">Your dashboard</h2>
         {ready && !hasHistory ? (

@@ -7,6 +7,9 @@ import { getAsterism } from "@/lib/astro/asterisms";
 import { accuracy, ranked, resetProgress, weakConstellations } from "@/lib/progress";
 import { asterismAccuracy, rankedAsterisms } from "@/lib/asterismProgress";
 import { cn } from "@/lib/utils";
+import { useMessierProgress } from "@/hooks/useMessierProgress";
+import { getMessier } from "@/lib/astro/messier";
+import { messierAccuracy, weakestMessier } from "@/lib/messierProgress";
 
 export const Route = createFileRoute("/progress")({
   head: () => ({
@@ -46,6 +49,7 @@ function ProgressPage() {
         </Button>
         <div className="mt-10 text-left">
           <AsterismProgressSection />
+          <MessierProgressSection />
         </div>
       </main>
     );
@@ -127,6 +131,8 @@ function ProgressPage() {
 
       <AsterismProgressSection />
 
+      <MessierProgressSection />
+
       <Button
         variant="ghost"
         size="sm"
@@ -138,6 +144,27 @@ function ProgressPage() {
         Reset progress
       </Button>
     </main>
+  );
+}
+
+function MessierProgressSection() {
+  const { progress, ready } = useMessierProgress();
+  const weak = weakestMessier(progress, 5);
+  return (
+    <section className="mt-10">
+      <h2 className="label-caps">Messier Objects</h2>
+      <p className="mt-1 text-xs text-muted-foreground">Tracked separately from constellation and asterism practice.</p>
+      {ready && progress.totalQuestions === 0 ? (
+        <div className="panel mt-3 p-4"><p className="text-sm text-muted-foreground">No Messier attempts yet.</p><Button asChild size="sm" className="mt-3" variant="secondary"><Link to="/messier/practice">Practice Messier</Link></Button></div>
+      ) : (
+        <>
+          <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {[["Objects practiced", String(Object.keys(progress.byObject).length)], ["Attempts", String(progress.totalQuestions)], ["Accuracy", `${messierAccuracy(progress.correct, progress.totalQuestions)}%`], ["Streak", String(progress.currentStreak)], ["Best streak", String(progress.bestStreak)], ["Modes", String(Object.values(progress.byDifficulty).filter((stat) => stat.attempts > 0).length)]].map(([label, value]) => <div key={label} className="panel p-3"><dt className="label-caps">{label}</dt><dd className="mt-1 font-display text-xl font-semibold">{value}</dd></div>)}
+          </dl>
+          {weak.length > 0 && <div className="panel mt-3 p-4"><h3 className="label-caps">Weakest objects</h3><ul className="mt-2 space-y-1 text-sm">{weak.map((item) => <li key={item.id} className="flex justify-between gap-3"><Link to="/messier/$id" params={{ id: item.id }} className="hover:text-primary">{getMessier(item.id)?.designation ?? item.id}{getMessier(item.id)?.name ? ` · ${getMessier(item.id)?.name}` : ""}</Link><span className="font-mono text-muted-foreground">{item.accuracy}%</span></li>)}</ul></div>}
+        </>
+      )}
+    </section>
   );
 }
 /** Asterism statistics, stored and displayed separately from constellations. */

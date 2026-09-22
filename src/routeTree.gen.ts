@@ -17,6 +17,9 @@ import { Route as AsterismsIdRouteImport } from './routes/asterisms.$id'
 import { Route as AsterismsPracticeRouteImport } from './routes/asterisms.practice'
 import { Route as ConstellationsIndexRouteImport } from './routes/constellations.index'
 import { Route as ConstellationsIdRouteImport } from './routes/constellations.$id'
+import { Route as MessierIndexRouteImport } from './routes/messier.index'
+import { Route as MessierIdRouteImport } from './routes/messier.$id'
+import { Route as MessierPracticeRouteImport } from './routes/messier.practice'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +61,21 @@ const ConstellationsIdRoute = ConstellationsIdRouteImport.update({
   path: '/constellations/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessierIndexRoute = MessierIndexRouteImport.update({
+  id: '/messier/',
+  path: '/messier/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessierIdRoute = MessierIdRouteImport.update({
+  id: '/messier/$id',
+  path: '/messier/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessierPracticeRoute = MessierPracticeRouteImport.update({
+  id: '/messier/practice',
+  path: '/messier/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -66,8 +84,11 @@ export interface FileRoutesByFullPath {
   '/asterisms/$id': typeof AsterismsIdRoute
   '/asterisms/practice': typeof AsterismsPracticeRoute
   '/constellations/$id': typeof ConstellationsIdRoute
+  '/messier/$id': typeof MessierIdRoute
+  '/messier/practice': typeof MessierPracticeRoute
   '/asterisms/': typeof AsterismsIndexRoute
   '/constellations/': typeof ConstellationsIndexRoute
+  '/messier/': typeof MessierIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,8 +97,11 @@ export interface FileRoutesByTo {
   '/asterisms/$id': typeof AsterismsIdRoute
   '/asterisms/practice': typeof AsterismsPracticeRoute
   '/constellations/$id': typeof ConstellationsIdRoute
+  '/messier/$id': typeof MessierIdRoute
+  '/messier/practice': typeof MessierPracticeRoute
   '/asterisms': typeof AsterismsIndexRoute
   '/constellations': typeof ConstellationsIndexRoute
+  '/messier': typeof MessierIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,8 +111,11 @@ export interface FileRoutesById {
   '/asterisms/$id': typeof AsterismsIdRoute
   '/asterisms/practice': typeof AsterismsPracticeRoute
   '/constellations/$id': typeof ConstellationsIdRoute
+  '/messier/$id': typeof MessierIdRoute
+  '/messier/practice': typeof MessierPracticeRoute
   '/asterisms/': typeof AsterismsIndexRoute
   '/constellations/': typeof ConstellationsIndexRoute
+  '/messier/': typeof MessierIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,8 +126,11 @@ export interface FileRouteTypes {
     | '/asterisms/$id'
     | '/asterisms/practice'
     | '/constellations/$id'
+    | '/messier/$id'
+    | '/messier/practice'
     | '/asterisms/'
     | '/constellations/'
+    | '/messier/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,8 +139,11 @@ export interface FileRouteTypes {
     | '/asterisms/$id'
     | '/asterisms/practice'
     | '/constellations/$id'
+    | '/messier/$id'
+    | '/messier/practice'
     | '/asterisms'
     | '/constellations'
+    | '/messier'
   id:
     | '__root__'
     | '/'
@@ -119,8 +152,11 @@ export interface FileRouteTypes {
     | '/asterisms/$id'
     | '/asterisms/practice'
     | '/constellations/$id'
+    | '/messier/$id'
+    | '/messier/practice'
     | '/asterisms/'
     | '/constellations/'
+    | '/messier/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -130,8 +166,11 @@ export interface RootRouteChildren {
   AsterismsIdRoute: typeof AsterismsIdRoute
   AsterismsPracticeRoute: typeof AsterismsPracticeRoute
   ConstellationsIdRoute: typeof ConstellationsIdRoute
+  MessierIdRoute: typeof MessierIdRoute
+  MessierPracticeRoute: typeof MessierPracticeRoute
   AsterismsIndexRoute: typeof AsterismsIndexRoute
   ConstellationsIndexRoute: typeof ConstellationsIndexRoute
+  MessierIndexRoute: typeof MessierIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +231,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConstellationsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messier/': {
+      id: '/messier/'
+      path: '/messier'
+      fullPath: '/messier/'
+      preLoaderRoute: typeof MessierIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messier/$id': {
+      id: '/messier/$id'
+      path: '/messier/$id'
+      fullPath: '/messier/$id'
+      preLoaderRoute: typeof MessierIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messier/practice': {
+      id: '/messier/practice'
+      path: '/messier/practice'
+      fullPath: '/messier/practice'
+      preLoaderRoute: typeof MessierPracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -202,8 +262,11 @@ const rootRouteChildren: RootRouteChildren = {
   AsterismsIdRoute: AsterismsIdRoute,
   AsterismsPracticeRoute: AsterismsPracticeRoute,
   ConstellationsIdRoute: ConstellationsIdRoute,
+  MessierIdRoute: MessierIdRoute,
+  MessierPracticeRoute: MessierPracticeRoute,
   AsterismsIndexRoute: AsterismsIndexRoute,
   ConstellationsIndexRoute: ConstellationsIndexRoute,
+  MessierIndexRoute: MessierIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

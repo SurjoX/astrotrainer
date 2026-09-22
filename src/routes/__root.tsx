@@ -138,7 +138,7 @@ function RootComponent() {
       console.error("[astronomy data] validation failed", result.errors);
     } else {
       console.info(
-        `[astronomy data] ok — ${result.counts.constellations} constellations, ${result.counts.stars} stars, ${result.counts.segments} figure segments`,
+        `[astronomy data] ok — ${result.counts.constellations} constellations, ${result.counts.stars} stars, ${result.counts.segments} figure segments, ${result.counts.messier} Messier objects`,
         result.warnings.length ? result.warnings : "",
       );
     }

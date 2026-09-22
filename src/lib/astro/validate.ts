@@ -1,17 +1,19 @@
 import { boundaryOf } from "./boundaries";
 import { constellations, starById } from "./catalog";
+import { validateMessierData } from "./messier";
 
 export interface ValidationResult {
   ok: boolean;
   errors: string[];
   warnings: string[];
-  counts: { constellations: number; stars: number; segments: number };
+  counts: { constellations: number; stars: number; segments: number; messier: number };
 }
 
 /** Integrity check over the astronomy dataset. Runs in dev on app start. */
 export function validateAstronomyData(): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
+  errors.push(...validateMessierData());
   const ids = new Set<string>();
   const abbrs = new Set<string>();
   let segments = 0;
@@ -68,6 +70,6 @@ export function validateAstronomyData(): ValidationResult {
     ok: errors.length === 0,
     errors,
     warnings,
-    counts: { constellations: constellations.length, stars: starById.size, segments },
+    counts: { constellations: constellations.length, stars: starById.size, segments, messier: 110 },
   };
 }

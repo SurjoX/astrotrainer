@@ -7,16 +7,38 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useProgress } from "@/hooks/useProgress";
-import { getConstellation } from "@/lib/astro/catalog";
+import { useStarProgress } from "@/hooks/useStarProgress";
+import { angularSeparation, getConstellation } from "@/lib/astro/catalog";
 import { generateQuestion } from "@/lib/astro/questions";
+import {
+  buildStarPracticeQuestion,
+  getStarConstellation,
+  getStarPracticeModeConfig,
+  getStarPracticeName,
+  shuffleStarPracticePool,
+  matchesStarAnswer,
+  STAR_LOCATION_TOLERANCE_DEG,
+  type StarPracticeNameType,
+  type StarPracticeQuestion,
+} from "@/lib/astro/starPractice";
 import { QuestionType, type Difficulty, type Question } from "@/lib/astro/types";
 import type { ViewState } from "@/lib/astro/projection";
-import { accuracy, recordAnswer, recordSession, scoreFor, weakConstellations } from "@/lib/progress";
+import {
+  accuracy,
+  recordAnswer,
+  recordSession,
+  scoreFor,
+  weakConstellations,
+} from "@/lib/progress";
+import { recordStarAnswer, starAccuracy } from "@/lib/starProgress";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/practice")({
-  validateSearch: (search: Record<string, unknown>): { category?: "constellations" } =>
-    search["category"] === "constellations" ? { category: "constellations" } : {},
+  validateSearch: (search: Record<string, unknown>): { category?: "constellations" | "stars" } => {
+    if (search["category"] === "constellations") return { category: "constellations" };
+    if (search["category"] === "stars") return { category: "stars" };
+    return {};
+  },
   head: () => ({
     meta: [
       { title: "Practice — AstroTrainer" },
@@ -37,8 +59,16 @@ export const Route = createFileRoute("/practice")({
 
 const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
   { id: "beginner", label: "Beginner", blurb: "Stick figure, IAU boundary and coordinate grid" },
-  { id: "intermediate", label: "Intermediate", blurb: "Boundary and grid only, no figure, slight rotation" },
-  { id: "advanced", label: "Advanced", blurb: "Type the constellation name, realistic star field with boundary" },
+  {
+    id: "intermediate",
+    label: "Intermediate",
+    blurb: "Boundary and grid only, no figure, slight rotation",
+  },
+  {
+    id: "advanced",
+    label: "Advanced",
+    blurb: "Type the constellation name, realistic star field with boundary",
+  },
 ];
 
 type PracticeMode = "constellation" | "iau-images";
@@ -63,11 +93,23 @@ interface Answered {
   points: number;
 }
 
+interface StarAnswered {
+  question: StarPracticeQuestion;
+  input: string;
+  selected: { ra: number; dec: number } | null;
+  separation: number | null;
+  correct: boolean;
+  elapsedMs: number;
+  points: number;
+}
+
 function PracticePage() {
   const { progress } = useProgress();
+  const { progress: starProgress } = useStarProgress();
   const navigate = Route.useNavigate();
   const { category } = Route.useSearch();
   const constellationSelected = category === "constellations";
+  const starSelected = category === "stars";
   const [mode, setMode] = useState<PracticeMode>("constellation");
   const [difficulty, setDifficulty] = useState<Difficulty>("beginner");
   const [timed, setTimed] = useState(false);
@@ -79,6 +121,37 @@ function PracticePage() {
   const [remaining, setRemaining] = useState(TIME_LIMIT_MS);
   const [textInput, setTextInput] = useState("");
   const startedAt = useRef(0);
+
+  const [starPracticeType, setStarPracticeType] = useState<StarPracticeNameType>("common");
+  const [starDifficulty, setStarDifficulty] = useState<Difficulty>("beginner");
+  const [starQuestion, setStarQuestion] = useState<StarPracticeQuestion | null>(null);
+  const [starAnswered, setStarAnswered] = useState<StarAnswered | null>(null);
+  const [starInput, setStarInput] = useState("");
+  const [starSelection, setStarSelection] = useState<{ ra: number; dec: number } | null>(null);
+  const [starStartedAt, setStarStartedAt] = useState(0);
+  const [starQueue, setStarQueue] = useState<string[]>([]);
+  const [starQueueIndex, setStarQueueIndex] = useState(0);
+
+  useEffect(() => {
+    if (!starSelected) {
+      setStarQuestion(null);
+      setStarAnswered(null);
+      setStarInput("");
+      setStarSelection(null);
+      setStarStartedAt(0);
+      setStarQueue([]);
+      setStarQueueIndex(0);
+      return;
+    }
+
+    setStarQuestion(null);
+    setStarAnswered(null);
+    setStarInput("");
+    setStarSelection(null);
+    setStarStartedAt(0);
+    setStarQueue([]);
+    setStarQueueIndex(0);
+  }, [starSelected]);
 
   const weak = useMemo(() => weakConstellations(progress, 8), [progress]);
 
@@ -94,7 +167,9 @@ function PracticePage() {
     setRemaining(TIME_LIMIT_MS);
     startedAt.current = Date.now();
     if (mode === "iau-images") {
-      setQuestion(generateQuestion(QuestionType.IDENTIFY_CONSTELLATION_FROM_IMAGE, difficulty, pool));
+      setQuestion(
+        generateQuestion(QuestionType.IDENTIFY_CONSTELLATION_FROM_IMAGE, difficulty, pool),
+      );
     } else {
       setQuestion(generateQuestion(QuestionType.IDENTIFY_CONSTELLATION, difficulty, pool));
     }
@@ -104,21 +179,20 @@ function PracticePage() {
     (choiceId: string | null, userInput?: string) => {
       if (!question || answered) return;
       const elapsedMs = Date.now() - startedAt.current;
-      
+
       let correct = false;
       let validatedChoiceId = choiceId;
-      
-      // For Advanced mode with text input, validate the text answer
+
       if (difficulty === "advanced" && userInput !== undefined) {
         const normalized = userInput.trim().toLowerCase();
-        const constellationName = getConstellation(question.correctAnswer)?.name.toLowerCase() ?? "";
+        const constellationName =
+          getConstellation(question.correctAnswer)?.name.toLowerCase() ?? "";
         correct = normalized === constellationName;
         validatedChoiceId = correct ? question.correctAnswer : null;
       } else {
-        // For other modes with multiple choice
         correct = choiceId === question.correctAnswer;
       }
-      
+
       const points = scoreFor(correct, elapsedMs);
       recordAnswer({
         constellationId: question.correctAnswer,
@@ -132,6 +206,81 @@ function PracticePage() {
     },
     [answered, question, difficulty],
   );
+
+  const nextStarQuestion = useCallback(() => {
+    const nextIndex = starQueueIndex + 1;
+    let nextQueue = starQueue;
+    let index = nextIndex;
+    if (nextQueue.length === 0 || index >= nextQueue.length) {
+      nextQueue = shuffleStarPracticePool(starPracticeType, starDifficulty).map((star) => star.id);
+      index = 0;
+      setStarQueue(nextQueue);
+    }
+    const next = buildStarPracticeQuestion(nextQueue[index], starDifficulty);
+    setStarQuestion(next);
+    setStarQueueIndex(index);
+    setStarAnswered(null);
+    setStarSelection(null);
+    setStarInput("");
+    setStarStartedAt(Date.now());
+  }, [starDifficulty, starPracticeType, starQueue, starQueueIndex]);
+
+  const startStarPractice = useCallback(() => {
+    const queue = shuffleStarPracticePool(starPracticeType, starDifficulty).map((star) => star.id);
+    setStarQueue(queue);
+    setStarQueueIndex(0);
+    const first = buildStarPracticeQuestion(queue[0], starDifficulty);
+    setStarQuestion(first);
+    setStarAnswered(null);
+    setStarSelection(null);
+    setStarInput("");
+    setStarStartedAt(Date.now());
+  }, [starDifficulty, starPracticeType]);
+
+  const submitStar = useCallback(() => {
+    if (!starQuestion || starAnswered) return;
+    const elapsedMs = Date.now() - starStartedAt;
+    const separation = starSelection
+      ? angularSeparation(
+          starSelection.ra,
+          starSelection.dec,
+          starQuestion.star.ra,
+          starQuestion.star.dec,
+        )
+      : null;
+
+    const correct =
+      starDifficulty === "advanced"
+        ? separation !== null && separation <= STAR_LOCATION_TOLERANCE_DEG
+        : matchesStarAnswer(starQuestion.star, starInput, starPracticeType);
+
+    const points = Math.max(1, Math.round(100 - Math.min(95, (separation ?? 8.5) * 8)));
+    recordStarAnswer({
+      starId: starQuestion.star.id,
+      correct,
+      elapsedMs,
+      difficulty: starDifficulty,
+      angularErrorDeg: separation,
+    });
+
+    setStarAnswered({
+      question: starQuestion,
+      input: starInput,
+      selected: starSelection,
+      separation,
+      correct,
+      elapsedMs,
+      points,
+    });
+  }, [
+    starAnswered,
+    starDifficulty,
+    starInput,
+    starPracticeType,
+    starQuestion,
+    starSelection,
+    starStartedAt,
+  ]);
 
   // countdown for timed practice
   useEffect(() => {
@@ -168,6 +317,304 @@ function PracticePage() {
     setQuestion(null);
     void navigate({ to: "/practice", search: {} });
   };
+
+  if (starSelected) {
+    if (!starQuestion) {
+      return (
+        <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="-ml-2 mb-3 gap-1.5 text-muted-foreground"
+          >
+            <Link to="/practice">Back to practice hub</Link>
+          </Button>
+          <h1 className="font-display text-3xl font-bold">Star practice</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Learn the bright stars by name, Bayer designation, and position on the real sky.
+          </p>
+
+          <section className="mt-8">
+            <h2 className="label-caps">Practice by</h2>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {(
+                [
+                  ["common", "Common / Proper Name"],
+                  ["bayer", "Bayer Designation"],
+                ] as [StarPracticeNameType, string][]
+              ).map(([type, label]) => (
+                <button
+                  key={type}
+                  onClick={() => setStarPracticeType(type)}
+                  className={cn(
+                    "panel p-4 text-left transition-colors",
+                    starPracticeType === type
+                      ? "border-primary/60 bg-primary/10"
+                      : "hover:bg-secondary/50",
+                  )}
+                >
+                  <span className="font-display text-base font-semibold">{label}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {type === "common"
+                      ? "Practice by the star's familiar name."
+                      : "Practice by the alpha/beta Bayer designation."}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-6">
+            <h2 className="label-caps">Difficulty</h2>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              {(["beginner", "intermediate", "advanced"] as Difficulty[]).map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setStarDifficulty(d)}
+                  className={cn(
+                    "panel p-4 text-left transition-colors",
+                    starDifficulty === d
+                      ? "border-primary/60 bg-primary/10"
+                      : "hover:bg-secondary/50",
+                  )}
+                >
+                  <span className="font-display text-base font-semibold">
+                    {d.charAt(0).toUpperCase() + d.slice(1)}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {d === "beginner"
+                      ? "Target is visible with constellation lines."
+                      : d === "intermediate"
+                        ? "Type the star name from a wide randomized sky."
+                        : "Pan and zoom to locate the hidden target."}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              ["Attempts", String(starProgress.totalQuestions)],
+              ["Accuracy", `${starAccuracy(starProgress.correct, starProgress.totalQuestions)}%`],
+              ["Correct", String(starProgress.correct)],
+              ["Streak", String(starProgress.currentStreak)],
+            ].map(([label, value]) => (
+              <div key={label} className="panel p-3">
+                <dt className="label-caps">{label}</dt>
+                <dd className="mt-1 font-display text-xl font-semibold">{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <Button size="lg" className="mt-6" onClick={startStarPractice}>
+            Start practice
+          </Button>
+        </main>
+      );
+    }
+
+    const reveal = !!starAnswered;
+    const targetConstellation = getStarConstellation(starQuestion.star) ?? null;
+    const modeConfig = getStarPracticeModeConfig(starDifficulty);
+    const modePrompt = getStarPracticeName(starQuestion.star, starPracticeType);
+    const markerList =
+      starDifficulty === "advanced"
+        ? [
+            ...(starSelection && !reveal
+              ? [
+                  {
+                    ra: starSelection.ra,
+                    dec: starSelection.dec,
+                    color: "#f7c66a",
+                    label: "Your selection",
+                  },
+                ]
+              : []),
+            ...(reveal
+              ? [
+                  {
+                    ra: starQuestion.star.ra,
+                    dec: starQuestion.star.dec,
+                    color: "#7ac4ff",
+                    label: modePrompt,
+                  },
+                ]
+              : []),
+          ]
+        : [
+            {
+              ra: starQuestion.star.ra,
+              dec: starQuestion.star.dec,
+              color: "#7ac4ff",
+              ...(reveal ? { label: modePrompt } : {}),
+            },
+          ];
+
+    return (
+      <main className="mx-auto grid min-w-0 max-w-7xl gap-4 px-3 py-4 sm:px-6 sm:py-6 lg:grid-cols-[1.35fr_1fr]">
+        <div className="panel min-w-0 overflow-hidden">
+          <div className="relative h-[52vh] min-h-[360px] lg:h-[calc(100vh-8rem)]">
+            <SkyViewer
+              key={starQuestion.id}
+              constellation={targetConstellation}
+              view={starQuestion.view}
+              magnitudeLimit={starDifficulty === "beginner" ? 5.8 : 6.4}
+              defaultLines={starDifficulty === "beginner" || reveal}
+              defaultLabels={false}
+              defaultBoundary={false}
+              defaultGrid={false}
+              lockToggles={!reveal}
+              {...(starDifficulty === "advanced" && !reveal
+                ? {
+                    onSkyClick: (position: { ra: number; dec: number }) =>
+                      setStarSelection(position),
+                  }
+                : {})}
+              markers={markerList}
+              className="h-full"
+            />
+            {!reveal && starDifficulty === "advanced" && starSelection && (
+              <div className="absolute left-3 top-3 rounded-md border border-primary/50 bg-background/80 px-3 py-2 text-xs backdrop-blur">
+                Selection ready — submit when you are confident.
+              </div>
+            )}
+          </div>
+        </div>
+
+        <aside className="panel min-w-0 p-4">
+          <p className="label-caps">
+            {starDifficulty.charAt(0).toUpperCase() + starDifficulty.slice(1)}
+          </p>
+          <h1 className="mt-1 font-display text-2xl font-bold">
+            {starDifficulty === "advanced" ? `Locate ${modePrompt}` : "Identify this star"}
+          </h1>
+
+          {!reveal ? (
+            <>
+              {starDifficulty === "advanced" ? (
+                <div className="mt-5 flex flex-col gap-3">
+                  <Button disabled={!starSelection} onClick={submitStar}>
+                    Submit location
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Click the map to place a marker, then submit. The target is not revealed until
+                    after your answer.
+                  </p>
+                </div>
+              ) : (
+                <form
+                  className="mt-5"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    submitStar();
+                  }}
+                >
+                  <label htmlFor="star-answer" className="label-caps">
+                    Your answer
+                  </label>
+                  <Input
+                    id="star-answer"
+                    autoFocus
+                    value={starInput}
+                    onChange={(event) => setStarInput(event.target.value)}
+                    placeholder={
+                      starPracticeType === "bayer"
+                        ? "Alpha Tauri, α Tau, or alf Tau"
+                        : "Sirius, Vega, Polaris, or Aldebaran"
+                    }
+                    className="mt-2"
+                  />
+                  <Button type="submit" disabled={!starInput.trim()} className="mt-3">
+                    Check answer
+                  </Button>
+                </form>
+              )}
+            </>
+          ) : (
+            <div
+              className={cn(
+                "mt-6 rounded-md border p-4",
+                starAnswered.correct
+                  ? "border-success/50 bg-success/10"
+                  : "border-destructive/50 bg-destructive/10",
+              )}
+            >
+              <p className="flex items-center gap-2 font-medium">
+                {starAnswered.correct ? <Check className="size-4" /> : <X className="size-4" />}
+                {starAnswered.correct ? "Correct" : "Not quite"}
+              </p>
+              <p className="mt-2 text-sm">
+                {starQuestion.star.name} · {starQuestion.star.constellationName}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {starQuestion.star.bayer
+                  ? `${starQuestion.star.bayer} ${starQuestion.star.constellation}`
+                  : "No Bayer designation"}
+              </p>
+              {starAnswered.separation !== null && (
+                <p className="mt-2 text-xs font-mono text-muted-foreground">
+                  Angular error: {starAnswered.separation.toFixed(2)}°
+                </p>
+              )}
+              <Button className="mt-4" onClick={nextStarQuestion}>
+                Next question
+              </Button>
+            </div>
+          )}
+
+          {reveal && (
+            <section className="mt-6 rounded-md border border-border/70 bg-background/70 p-4">
+              <p className="label-caps">Star profile</p>
+              <div className="mt-2 space-y-2 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Common / proper name:</span>{" "}
+                  {starQuestion.star.name}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Bayer designation:</span>{" "}
+                  {starQuestion.star.bayer
+                    ? `${starQuestion.star.bayer} ${starQuestion.star.constellationName}`
+                    : "—"}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Constellation:</span>{" "}
+                  {starQuestion.star.constellationName}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Magnitude:</span>{" "}
+                  {starQuestion.star.magnitude}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Alternative names:</span>{" "}
+                  {starQuestion.star.aliases.join(", ")}
+                </div>
+                {starQuestion.star.traditionalName && (
+                  <div>
+                    <span className="text-muted-foreground">Traditional name:</span>{" "}
+                    {starQuestion.star.traditionalName}
+                  </div>
+                )}
+                {starQuestion.star.spectralType && (
+                  <div>
+                    <span className="text-muted-foreground">Spectral type:</span>{" "}
+                    {starQuestion.star.spectralType}
+                  </div>
+                )}
+                {starQuestion.star.distance && (
+                  <div>
+                    <span className="text-muted-foreground">Distance:</span>{" "}
+                    {starQuestion.star.distance}
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+        </aside>
+      </main>
+    );
+  }
 
   if (finished) {
     return <Results history={history} onRestart={restart} />;
@@ -211,6 +658,16 @@ function PracticePage() {
                 Identify and locate galaxies, nebulae and clusters from M1 through M110.
               </span>
             </Link>
+            <Link
+              to="/practice"
+              search={{ category: "stars" }}
+              className="panel block p-4 text-left transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <span className="font-display text-base font-semibold">Star Practice</span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                Identify bright stars by name, Bayer designation and sky position.
+              </span>
+            </Link>
           </section>
         ) : (
           <>
@@ -226,10 +683,14 @@ function PracticePage() {
                   onClick={() => setMode("constellation")}
                   className={cn(
                     "panel p-4 text-left transition-colors",
-                    mode === "constellation" ? "border-primary/60 bg-primary/10" : "hover:bg-secondary/50",
+                    mode === "constellation"
+                      ? "border-primary/60 bg-primary/10"
+                      : "hover:bg-secondary/50",
                   )}
                 >
-                  <span className="font-display text-base font-semibold">Constellation Identification</span>
+                  <span className="font-display text-base font-semibold">
+                    Constellation Identification
+                  </span>
                   <span className="mt-0.5 block text-xs text-muted-foreground">
                     Recognise the constellation shown in the star field
                   </span>
@@ -238,7 +699,9 @@ function PracticePage() {
                   onClick={() => setMode("iau-images")}
                   className={cn(
                     "panel p-4 text-left transition-colors",
-                    mode === "iau-images" ? "border-primary/60 bg-primary/10" : "hover:bg-secondary/50",
+                    mode === "iau-images"
+                      ? "border-primary/60 bg-primary/10"
+                      : "hover:bg-secondary/50",
                   )}
                 >
                   <span className="font-display text-base font-semibold">Official IAU Images</span>
@@ -263,7 +726,9 @@ function PracticePage() {
                       onClick={() => setDifficulty(d.id)}
                       className={cn(
                         "panel p-4 text-left transition-colors",
-                        difficulty === d.id ? "border-primary/60 bg-primary/10" : "hover:bg-secondary/50",
+                        difficulty === d.id
+                          ? "border-primary/60 bg-primary/10"
+                          : "hover:bg-secondary/50",
                       )}
                     >
                       <span className="font-display text-base font-semibold">{d.label}</span>
@@ -281,7 +746,8 @@ function PracticePage() {
                     <span>
                       <span className="text-sm font-medium">Timed practice</span>
                       <span className="block text-xs text-muted-foreground">
-                        30 seconds per question; running out counts as incorrect and reveals the answer.
+                        30 seconds per question; running out counts as incorrect and reveals the
+                        answer.
                       </span>
                     </span>
                     <Switch checked={timed} onCheckedChange={setTimed} />
@@ -293,12 +759,18 @@ function PracticePage() {
                         {weak.length >= 4
                           ? weak
                               .slice(0, 3)
-                              .map((w) => `${getConstellation(w.id)?.name ?? w.id} — ${w.accuracy}%`)
+                              .map(
+                                (w) => `${getConstellation(w.id)?.name ?? w.id} — ${w.accuracy}%`,
+                              )
                               .join(" · ")
                           : "Not enough history yet — sessions stay random until you have practised more."}
                       </span>
                     </span>
-                    <Switch checked={weakMode} onCheckedChange={setWeakMode} disabled={weak.length < 4} />
+                    <Switch
+                      checked={weakMode}
+                      onCheckedChange={setWeakMode}
+                      disabled={weak.length < 4}
+                    />
                   </label>
                 </>
               )}
@@ -360,7 +832,9 @@ function PracticePage() {
                 className="text-muted-foreground text-sm p-8 bg-slate-800 rounded"
               >
                 <p>IAU constellation image not found.</p>
-                <p className="text-xs mt-2">Expected: /iau-constellations/processed/{question.correctAnswer}_processed.jpg</p>
+                <p className="text-xs mt-2">
+                  Expected: /iau-constellations/processed/{question.correctAnswer}_processed.jpg
+                </p>
               </div>
             </div>
           </div>
@@ -383,7 +857,8 @@ function PracticePage() {
         )}
         <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2">
           <span className="rounded bg-background/70 px-2 py-1 text-[11px] font-mono uppercase tracking-widest text-muted-foreground backdrop-blur">
-            {mode === "iau-images" ? "iau" : question.difficulty} · {history.length + (revealed ? 0 : 1)}/{QUESTIONS_PER_SESSION}
+            {mode === "iau-images" ? "iau" : question.difficulty} ·{" "}
+            {history.length + (revealed ? 0 : 1)}/{QUESTIONS_PER_SESSION}
           </span>
           {timed && !revealed && (
             <span

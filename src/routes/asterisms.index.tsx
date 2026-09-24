@@ -66,9 +66,9 @@ function AsterismAtlas() {
           <h1 className="font-display text-3xl font-bold">Asterisms</h1>
           <p className="mt-1 max-w-prose text-sm text-muted-foreground">
             Asterisms are recognisable star patterns that are <em>not</em> officially designated
-            constellations. They may sit inside one constellation or span several, and unlike the
-            88 IAU constellations there is no single authoritative list — where sources disagree,
-            each entry records the alternative definitions.
+            constellations. They may sit inside one constellation or span several, and unlike the 88
+            IAU constellations there is no single authoritative list — where sources disagree, each
+            entry records the alternative definitions.
           </p>
         </div>
         <Button variant="secondary" onClick={random} className="gap-2">

@@ -7,6 +7,7 @@
 **Access:** Practice → Difficulty: Advanced → Start
 
 **Test Cases:**
+
 - [ ] Text input appears instead of multiple-choice buttons
 - [ ] Placeholder text shows "e.g., Orion"
 - [ ] Check Answer button is present
@@ -15,7 +16,7 @@
   - [ ] "Orion" → Correct
   - [ ] "orion" → Correct
   - [ ] "ORION" → Correct
-  - [ ] "  Orion" (with spaces) → Correct
+  - [ ] " Orion" (with spaces) → Correct
   - [ ] "xyz" → Incorrect (with feedback showing what you entered)
 - [ ] IAU boundary shows before answering (not shown before)
 - [ ] After answering, constellation figure shows
@@ -26,6 +27,7 @@
 **Access:** Practice → Difficulty: Beginner → Start
 
 **Test Cases:**
+
 - [ ] Multiple-choice buttons appear (not text input)
 - [ ] Constellation stick figure is visible
 - [ ] IAU boundary is visible
@@ -41,6 +43,7 @@
 **Access:** Practice → Difficulty: Intermediate → Start
 
 **Test Cases:**
+
 - [ ] Multiple-choice buttons appear
 - [ ] Constellation stick figure is NOT visible
 - [ ] IAU boundary is visible
@@ -56,6 +59,7 @@
 **Access:** Practice → Mode: "Official IAU Images" → Start
 
 **Test Cases:**
+
 - [ ] Mode selector shows two buttons
 - [ ] "Official IAU Images" button can be selected
 - [ ] Difficulty selector hidden when IAU mode selected
@@ -69,6 +73,7 @@
 - [ ] Post-answer reveal shows constellation information with Bayer designations
 
 **Optional (if images added):**
+
 - [ ] After adding JPG images to `/public/iau-constellations/`:
   - [ ] Images display correctly
   - [ ] Images stay visible until answer submitted
@@ -79,13 +84,15 @@
 **Access:** Constellation Atlas (Browse constellations)
 
 **Test Cases:**
+
 - [ ] "Bright stars" section shows stars with Bayer
 - [ ] Format: "Betelgeuse — α Ori" (for Orion)
-- [ ] Format: "Rigel — β Ori" 
+- [ ] Format: "Rigel — β Ori"
 - [ ] Multiple stars shown with their Bayer designations
 - [ ] Only named stars show Bayer (faint stars without names don't show)
 
 **View Individual Constellation:**
+
 - [ ] Click "View in Sky" on constellation
 - [ ] Star labels on diagram show compact format
 - [ ] Labels show: "Betelgeuse (α)" format
@@ -93,6 +100,7 @@
 - [ ] All important stars have Bayer shown
 
 **After Answering Practice Question:**
+
 - [ ] Constellation Facts panel shows "Bright stars"
 - [ ] Stars show: "Betelgeuse — α Ori" format
 - [ ] Star information panel displays correctly
@@ -101,6 +109,7 @@
 ### 6. Practice Session Flow Testing
 
 **Test Cases:**
+
 - [ ] 10 questions per session works
 - [ ] Score calculation and accumulation
 - [ ] Session summary shows correct totals
@@ -112,11 +121,13 @@
 ### 7. Regression Testing (Ensure Nothing Broke)
 
 **Basic Navigation:**
+
 - [ ] All pages load correctly
 - [ ] No JavaScript console errors
 - [ ] No missing imports or broken references
 
 **Existing Features:**
+
 - [ ] Progress page works
 - [ ] Atlas browsing works
 - [ ] Search functionality works
@@ -129,12 +140,14 @@
 ## Visual Verification
 
 ### Colors & Styling
+
 - Text input styling matches existing buttons
 - Check Answer button matches existing button styles
 - Image placeholder error message is readable
 - All text labels and instructions are clear
 
 ### Responsive Design
+
 - Desktop view (1.55fr 1fr grid columns)
 - Tablet view (responsive columns)
 - Mobile view (stacked layout)
@@ -143,9 +156,11 @@
 ## Data Verification
 
 ### Bayer Symbols Correct
+
 If Orion appears, verify:
+
 - Betelgeuse = α (alpha)
-- Rigel = β (beta)  
+- Rigel = β (beta)
 - Bellatrix = γ (gamma)
 - Alnilam = ε (epsilon)
 - Alnitak = ζ (zeta)
@@ -154,6 +169,7 @@ If Orion appears, verify:
 (Check against official Bayer designations - not by brightness)
 
 ### Question Generation
+
 - All 88 constellations can appear in both modes
 - Distractors are plausible (nearby, similar size)
 - No duplicate answer options
@@ -190,20 +206,20 @@ If Orion appears, verify:
 
 ```javascript
 // Advanced mode validation function test
-normalizedInput = "  Orion  ".trim().toLowerCase()
-constellationName = "Orion".toLowerCase()
-assert(normalizedInput === constellationName) // PASS
+normalizedInput = "  Orion  ".trim().toLowerCase();
+constellationName = "Orion".toLowerCase();
+assert(normalizedInput === constellationName); // PASS
 
 // Bayer conversion test
-assert(bayerToSymbol("Alp") === "α") // PASS
-assert(bayerToSymbol("Bet") === "β") // PASS
-assert(bayerToSymbol("Kap-1") === "κ") // PASS
+assert(bayerToSymbol("Alp") === "α"); // PASS
+assert(bayerToSymbol("Bet") === "β"); // PASS
+assert(bayerToSymbol("Kap-1") === "κ"); // PASS
 
 // Question generation test
-q = generateQuestion(QuestionType.IDENTIFY_CONSTELLATION_FROM_IMAGE)
-assert(q.type === "IDENTIFY_CONSTELLATION_FROM_IMAGE") // PASS
-assert(q.choices.length === 4) // PASS
-assert(q.choices.some(c => c.id === q.correctAnswer)) // PASS
+q = generateQuestion(QuestionType.IDENTIFY_CONSTELLATION_FROM_IMAGE);
+assert(q.type === "IDENTIFY_CONSTELLATION_FROM_IMAGE"); // PASS
+assert(q.choices.length === 4); // PASS
+assert(q.choices.some((c) => c.id === q.correctAnswer)); // PASS
 ```
 
 ---
@@ -211,12 +227,14 @@ assert(q.choices.some(c => c.id === q.correctAnswer)) // PASS
 ## Known Limitations & Future Improvements
 
 ### Current Limitations:
+
 1. IAU images not included (licensing verification needed)
 2. Image error handling is informational (shows expected path)
 3. Advanced mode uses typed input only (no voice/scan option)
 4. Weak constellation pool doesn't work with IAU image mode (doesn't track per-image)
 
 ### Future Enhancements:
+
 1. Add licensed IAU constellation images
 2. Multi-language constellation name support
 3. Pronunciation guide for constellation names
@@ -232,22 +250,26 @@ assert(q.choices.some(c => c.id === q.correctAnswer)) // PASS
 ### Common Issues:
 
 **Text input not appearing in Advanced:**
+
 - Check: `difficulty === "advanced"` condition
 - Check: mode is "constellation" (not "iau-images")
 - Check: not in revealed state yet
 
 **Bayer symbols showing as ??:**
+
 - Browser encoding issue (ensure UTF-8)
 - Font doesn't support Greek characters
 - Check browser console for rendering errors
 
 **Images not loading:**
+
 - Check path: `/public/iau-constellations/{id}.jpg`
 - Verify file exists and is readable
 - Check Network tab in DevTools for 404 errors
 - Ensure JPG format (not PNG, etc.)
 
 ### Debug Mode:
+
 Add to localStorage: `console.log(question)` to inspect question object structure
 
 ---

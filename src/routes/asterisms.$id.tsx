@@ -13,7 +13,10 @@ export const Route = createFileRoute("/asterisms/$id")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Asterism not found — AstroTrainer" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Asterism not found — AstroTrainer" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
     const a = loaderData.asterism;
@@ -39,9 +42,7 @@ export const Route = createFileRoute("/asterisms/$id")({
   notFoundComponent: () => (
     <main className="mx-auto max-w-3xl px-4 py-16 text-center">
       <h1 className="font-display text-2xl font-bold">Asterism not found</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        That pattern is not in the catalog yet.
-      </p>
+      <p className="mt-2 text-sm text-muted-foreground">That pattern is not in the catalog yet.</p>
       <Button asChild className="mt-4" variant="secondary">
         <Link to="/asterisms">Browse asterisms</Link>
       </Button>
@@ -74,7 +75,12 @@ function AsterismDetail() {
       </div>
 
       <aside className="panel p-4">
-        <Button asChild variant="ghost" size="sm" className="-ml-2 mb-3 gap-1.5 text-muted-foreground">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 mb-3 gap-1.5 text-muted-foreground"
+        >
           <Link to="/asterisms">
             <ArrowLeft className="size-4" /> Asterisms
           </Link>
@@ -112,7 +118,8 @@ function AsterismDetail() {
             {asterism.stars.map((s) => (
               <li key={s.id} className="flex justify-between gap-3">
                 <span>
-                  {s.name ?? ([s.bayer, s.constellation].filter(Boolean).join(" ") || `HIP ${s.hip}`)}
+                  {s.name ??
+                    ([s.bayer, s.constellation].filter(Boolean).join(" ") || `HIP ${s.hip}`)}
                 </span>
                 <span className="font-mono text-xs text-muted-foreground">
                   mag {s.magnitude.toFixed(2)}

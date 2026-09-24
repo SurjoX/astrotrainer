@@ -8,8 +8,11 @@ import { accuracy, ranked, resetProgress, weakConstellations } from "@/lib/progr
 import { asterismAccuracy, rankedAsterisms } from "@/lib/asterismProgress";
 import { cn } from "@/lib/utils";
 import { useMessierProgress } from "@/hooks/useMessierProgress";
+import { useStarProgress } from "@/hooks/useStarProgress";
 import { getMessier } from "@/lib/astro/messier";
+import { getStarPracticeEntry } from "@/lib/astro/starPractice";
 import { messierAccuracy, weakestMessier } from "@/lib/messierProgress";
+import { starAccuracy, weakestStars } from "@/lib/starProgress";
 
 export const Route = createFileRoute("/progress")({
   head: () => ({
@@ -41,8 +44,8 @@ function ProgressPage() {
       <main className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
         <h1 className="font-display text-3xl font-bold">No progress yet</h1>
         <p className="mx-auto mt-2 max-w-prose text-sm text-muted-foreground">
-          Answer a few questions and this page will fill with accuracy, response times and a
-          mastery bar for every constellation you have seen.
+          Answer a few questions and this page will fill with accuracy, response times and a mastery
+          bar for every constellation you have seen.
         </p>
         <Button asChild className="mt-6">
           <Link to="/practice">Start practising</Link>
@@ -55,9 +58,7 @@ function ProgressPage() {
     );
   }
 
-  const avg = progress.totalQuestions
-    ? progress.totalTimeMs / progress.totalQuestions / 1000
-    : 0;
+  const avg = progress.totalQuestions ? progress.totalTimeMs / progress.totalQuestions / 1000 : 0;
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -99,8 +100,8 @@ function ProgressPage() {
       <section className="mt-6">
         <h2 className="label-caps">Mastery</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Mastery combines accuracy with repetition — at least five correct attempts are needed
-          to reach 100%.
+          Mastery combines accuracy with repetition — at least five correct attempts are needed to
+          reach 100%.
         </p>
         <ul className="mt-3 space-y-2">
           {rows.map((r) => (
@@ -133,6 +134,8 @@ function ProgressPage() {
 
       <MessierProgressSection />
 
+      <StarProgressSection />
+
       <Button
         variant="ghost"
         size="sm"
@@ -153,15 +156,127 @@ function MessierProgressSection() {
   return (
     <section className="mt-10">
       <h2 className="label-caps">Messier Objects</h2>
-      <p className="mt-1 text-xs text-muted-foreground">Tracked separately from constellation and asterism practice.</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Tracked separately from constellation and asterism practice.
+      </p>
       {ready && progress.totalQuestions === 0 ? (
-        <div className="panel mt-3 p-4"><p className="text-sm text-muted-foreground">No Messier attempts yet.</p><Button asChild size="sm" className="mt-3" variant="secondary"><Link to="/messier/practice">Practice Messier</Link></Button></div>
+        <div className="panel mt-3 p-4">
+          <p className="text-sm text-muted-foreground">No Messier attempts yet.</p>
+          <Button asChild size="sm" className="mt-3" variant="secondary">
+            <Link to="/messier/practice">Practice Messier</Link>
+          </Button>
+        </div>
       ) : (
         <>
           <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {[["Objects practiced", String(Object.keys(progress.byObject).length)], ["Attempts", String(progress.totalQuestions)], ["Accuracy", `${messierAccuracy(progress.correct, progress.totalQuestions)}%`], ["Streak", String(progress.currentStreak)], ["Best streak", String(progress.bestStreak)], ["Modes", String(Object.values(progress.byDifficulty).filter((stat) => stat.attempts > 0).length)]].map(([label, value]) => <div key={label} className="panel p-3"><dt className="label-caps">{label}</dt><dd className="mt-1 font-display text-xl font-semibold">{value}</dd></div>)}
+            {[
+              ["Objects practiced", String(Object.keys(progress.byObject).length)],
+              ["Attempts", String(progress.totalQuestions)],
+              ["Accuracy", `${messierAccuracy(progress.correct, progress.totalQuestions)}%`],
+              ["Streak", String(progress.currentStreak)],
+              ["Best streak", String(progress.bestStreak)],
+              [
+                "Modes",
+                String(
+                  Object.values(progress.byDifficulty).filter((stat) => stat.attempts > 0).length,
+                ),
+              ],
+            ].map(([label, value]) => (
+              <div key={label} className="panel p-3">
+                <dt className="label-caps">{label}</dt>
+                <dd className="mt-1 font-display text-xl font-semibold">{value}</dd>
+              </div>
+            ))}
           </dl>
-          {weak.length > 0 && <div className="panel mt-3 p-4"><h3 className="label-caps">Weakest objects</h3><ul className="mt-2 space-y-1 text-sm">{weak.map((item) => <li key={item.id} className="flex justify-between gap-3"><Link to="/messier/$id" params={{ id: item.id }} className="hover:text-primary">{getMessier(item.id)?.designation ?? item.id}{getMessier(item.id)?.name ? ` · ${getMessier(item.id)?.name}` : ""}</Link><span className="font-mono text-muted-foreground">{item.accuracy}%</span></li>)}</ul></div>}
+          {weak.length > 0 && (
+            <div className="panel mt-3 p-4">
+              <h3 className="label-caps">Weakest objects</h3>
+              <ul className="mt-2 space-y-1 text-sm">
+                {weak.map((item) => (
+                  <li key={item.id} className="flex justify-between gap-3">
+                    <Link to="/messier/$id" params={{ id: item.id }} className="hover:text-primary">
+                      {getMessier(item.id)?.designation ?? item.id}
+                      {getMessier(item.id)?.name ? ` · ${getMessier(item.id)?.name}` : ""}
+                    </Link>
+                    <span className="font-mono text-muted-foreground">{item.accuracy}%</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+function StarProgressSection() {
+  const { progress, ready } = useStarProgress();
+  const weak = weakestStars(progress, 5);
+
+  return (
+    <section className="mt-10">
+      <h2 className="label-caps">Stars</h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Tracked separately from constellations, asterisms and Messier objects.
+      </p>
+
+      {ready && progress.totalQuestions === 0 ? (
+        <div className="panel mt-3 p-4">
+          <p className="text-sm text-muted-foreground">No star attempts yet.</p>
+          <Button asChild size="sm" className="mt-3" variant="secondary">
+            <Link to="/practice" search={{ category: "stars" }}>
+              Practice stars
+            </Link>
+          </Button>
+        </div>
+      ) : (
+        <>
+          <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              ["Stars practiced", String(Object.keys(progress.byStar).length)],
+              ["Attempts", String(progress.totalQuestions)],
+              ["Accuracy", `${starAccuracy(progress.correct, progress.totalQuestions)}%`],
+              ["Correct", String(progress.correct)],
+              ["Streak", String(progress.currentStreak)],
+              ["Best streak", String(progress.bestStreak)],
+            ].map(([label, value]) => (
+              <div key={label} className="panel p-3">
+                <dt className="label-caps">{label}</dt>
+                <dd className="mt-1 font-display text-xl font-semibold">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            {(["beginner", "intermediate", "advanced"] as const).map((d) => {
+              const s = progress.byDifficulty[d];
+              return (
+                <div key={d} className="panel p-3">
+                  <p className="label-caps capitalize">{d}</p>
+                  <p className="mt-1 font-mono text-sm text-muted-foreground">
+                    {s.correct}/{s.attempts} · {starAccuracy(s.correct, s.attempts)}%
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {weak.length > 0 && (
+            <div className="panel mt-3 p-4">
+              <h3 className="label-caps">Weakest stars</h3>
+              <ul className="mt-2 space-y-1 text-sm">
+                {weak.map((item) => {
+                  const star = getStarPracticeEntry(item.id);
+                  return (
+                    <li key={item.id} className="flex justify-between gap-3">
+                      <span>{star?.name ?? item.id}</span>
+                      <span className="font-mono text-muted-foreground">{item.accuracy}%</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </>
       )}
     </section>

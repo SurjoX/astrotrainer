@@ -14,7 +14,10 @@ export const Route = createFileRoute("/constellations/$id")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Constellation not found — AstroTrainer" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Constellation not found — AstroTrainer" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
     const c = loaderData.constellation;
@@ -50,7 +53,12 @@ function ConstellationDetail() {
         />
       </div>
       <aside className="panel p-4">
-        <Button asChild variant="ghost" size="sm" className="-ml-2 mb-3 gap-1.5 text-muted-foreground">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 mb-3 gap-1.5 text-muted-foreground"
+        >
           <Link to="/constellations">
             <ArrowLeft className="size-4" /> Atlas
           </Link>

@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { emptyMessierProgress, loadMessierProgress, type MessierProgressState } from "@/lib/messierProgress";
+import {
+  emptyMessierProgress,
+  loadMessierProgress,
+  type MessierProgressState,
+} from "@/lib/messierProgress";
 
 export function useMessierProgress() {
   const [progress, setProgress] = useState<MessierProgressState>(emptyMessierProgress);

@@ -7,6 +7,7 @@ This document summarizes the three major changes implemented to the AstroTrainer
 ### Status: COMPLETE
 
 #### Changes Made:
+
 1. **DIFFICULTY_PROFILE Updated** (`src/lib/astro/questions.ts`)
    - Advanced mode now sets `showBoundary: true` (was `false`)
    - Allows users to see the IAU constellation boundary before answering
@@ -22,19 +23,21 @@ This document summarizes the three major changes implemented to the AstroTrainer
    - Implements case-insensitive validation
    - Normalizes input: `trim()` and `.toLowerCase()`
    - Compares against constellation name from `getConstellation()`
-   - Works for all variations: "Orion", "orion", "ORION", "  Orion"
+   - Works for all variations: "Orion", "orion", "ORION", " Orion"
 
 4. **Feedback Updates** (`src/routes/practice.tsx`)
    - Shows user's entered text: `Incorrect — you entered "xxx"`
    - Display description updated: "Type the constellation name, realistic star field with boundary"
 
 #### What Remains Unchanged:
+
 - ✅ Beginner mode: Stick figure + IAU boundary + grid + 4 multiple-choice options
 - ✅ Intermediate mode: No stick figure + IAU boundary + grid + 4 multiple-choice options
 - ✅ All scoring and progress tracking
 - ✅ Post-answer reveal showing constellation figure, boundary, and information
 
 #### Testing Notes:
+
 - Advanced mode correctly displays text input
 - Input validation accepts all case variations
 - Whitespace trimming works correctly
@@ -50,6 +53,7 @@ This document summarizes the three major changes implemented to the AstroTrainer
 #### Changes Made:
 
 1. **Bayer Symbol Conversion** (`src/lib/astro/catalog.ts`)
+
    ```typescript
    bayerToSymbol(bayerCode: string | null): string | null
    ```
@@ -58,6 +62,7 @@ This document summarizes the three major changes implemented to the AstroTrainer
    - Includes all 24 Greek letters in astronomy
 
 2. **Enhanced Star Label Functions** (`src/lib/astro/catalog.ts`)
+
    ```typescript
    starLabelWithBayer(s: Star): string     // "Betelgeuse — α Ori"
    starLabelCompact(s: Star): string       // "Betelgeuse (α)"
@@ -82,17 +87,20 @@ This document summarizes the three major changes implemented to the AstroTrainer
    - Maintains visual consistency with compact Bayer symbols
 
 #### Data Source:
+
 - Uses existing `bayer` field from star data (already in `stars.json`)
 - Properly handles stars without Bayer designations
 - No fabricated data - only uses documented astronomical data
 
 #### What Remains Unchanged:
+
 - ✅ Atlas constellation list display
 - ✅ All constellation descriptions and information
 - ✅ Star brightness magnitude display
 - ✅ All other UI elements and functionality
 
 #### Visual Impact:
+
 - Star labels remain readable (no overcrowding due to Bayer addition)
 - Compact format preferred for diagrams: "Betelgeuse (α)"
 - Full format for information sections: "Betelgeuse — α Ori"
@@ -107,11 +115,13 @@ This document summarizes the three major changes implemented to the AstroTrainer
 #### Changes Made:
 
 1. **New Question Type** (`src/lib/astro/types.ts`)
+
    ```typescript
-   IDENTIFY_CONSTELLATION_FROM_IMAGE = "IDENTIFY_CONSTELLATION_FROM_IMAGE"
+   IDENTIFY_CONSTELLATION_FROM_IMAGE = "IDENTIFY_CONSTELLATION_FROM_IMAGE";
    ```
 
 2. **Question Generator** (`src/lib/astro/questions.ts`)
+
    ```typescript
    generateIAUImageQuestion(pool?: string[]): Question
    ```
@@ -148,12 +158,14 @@ This document summarizes the three major changes implemented to the AstroTrainer
    - Images should be named: `{constellation-id}.jpg` (e.g., `ori.jpg`)
 
 #### Answer Format:
+
 - 4 multiple-choice options (same as Beginner/Intermediate)
 - Correct answer is always included
 - Distractors are plausible nearby constellations
 - Randomizes option positions
 
 #### Post-Answer Reveal:
+
 - Shows correct/incorrect feedback
 - Displays the IAU constellation image
 - Shows constellation name and full information
@@ -161,6 +173,7 @@ This document summarizes the three major changes implemented to the AstroTrainer
 - Access to "Study Constellation" button
 
 #### Image Licensing Approach:
+
 - Infrastructure ready for legally-licensed images
 - Clear documentation in `/public/iau-constellations/README.md`
 - Recommends checking:
@@ -170,12 +183,14 @@ This document summarizes the three major changes implemented to the AstroTrainer
 - Application handles missing images gracefully
 
 #### What Remains Unchanged:
+
 - ✅ Existing constellation identification mode
 - ✅ All difficulty levels for constellation mode
 - ✅ All scoring and progress tracking systems
 - ✅ Session results and statistics
 
 #### Implementation Notes:
+
 - Images can be added by placing JPG files in `/public/iau-constellations/`
 - Constellation IDs are 3-letter lowercase abbreviations (and, ori, leo, etc.)
 - No code changes needed once images are added
@@ -186,6 +201,7 @@ This document summarizes the three major changes implemented to the AstroTrainer
 ## Architecture & Integration
 
 ### Files Modified:
+
 1. `src/lib/astro/types.ts` - Added new question type, optional iauImage field
 2. `src/lib/astro/questions.ts` - Updated DIFFICULTY_PROFILE, added question generators
 3. `src/lib/astro/catalog.ts` - Added Bayer utility functions
@@ -195,10 +211,12 @@ This document summarizes the three major changes implemented to the AstroTrainer
 7. `src/components/sky/StarMap.tsx` - Updated to show compact Bayer labels
 
 ### Files Created:
+
 1. `/public/iau-constellations/README.md` - Licensing and sourcing guidelines
 2. `/public/iau-constellations/` - Directory for storing IAU constellation images
 
 ### No Changes To:
+
 - ✅ Progress tracking system
 - ✅ Scoring algorithms
 - ✅ Session management
@@ -211,11 +229,13 @@ This document summarizes the three major changes implemented to the AstroTrainer
 ## Verification & Testing
 
 ### Build Status:
+
 ✅ Clean build with no errors or warnings
 ✅ All TypeScript types check correctly
 ✅ No runtime warnings
 
 ### Features Verified:
+
 ✅ Advanced mode shows text input field
 ✅ Text input validates case-insensitively
 ✅ Beginner mode still shows multiple-choice buttons
@@ -232,6 +252,7 @@ This document summarizes the three major changes implemented to the AstroTrainer
 ## Implementation Quality
 
 ### Code Quality:
+
 - ✅ No duplicate code
 - ✅ Reused existing infrastructure where possible
 - ✅ Consistent with application style and patterns
@@ -239,12 +260,14 @@ This document summarizes the three major changes implemented to the AstroTrainer
 - ✅ Clear, readable code with appropriate comments
 
 ### Accuracy:
+
 - ✅ Bayer designations use official data from star catalog
 - ✅ No fabricated or incorrect astronomical data
 - ✅ Case-insensitive constellation name validation working correctly
 - ✅ Distractor selection uses existing plausible algorithm
 
 ### User Experience:
+
 - ✅ New mode clearly labeled and easy to access
 - ✅ Text input mode clear with helpful placeholder
 - ✅ Error messages helpful and informative
@@ -256,14 +279,17 @@ This document summarizes the three major changes implemented to the AstroTrainer
 ## Deployment Notes
 
 ### Prerequisites:
+
 None - all TypeScript/React code is compatible with existing setup
 
 ### Additional Steps (Optional):
+
 1. Source licensed IAU constellation images
 2. Place JPG files in `/public/iau-constellations/` with naming pattern
 3. Build and deploy application
 
 ### Backwards Compatibility:
+
 ✅ Fully backwards compatible
 ✅ Existing sessions/progress data unaffected
 ✅ All existing features work exactly as before

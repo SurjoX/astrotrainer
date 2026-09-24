@@ -7,9 +7,7 @@ interface LocalImageGalleryProps {
   className?: string;
 }
 
-const IMAGE_PATHS = Array.from({ length: 12 }, (_, index) =>
-  String(index + 1).padStart(2, "0"),
-);
+const IMAGE_PATHS = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
 
 export function LocalImageGallery({ objectId, alt, className }: LocalImageGalleryProps) {
   const [available, setAvailable] = useState<string[]>([]);

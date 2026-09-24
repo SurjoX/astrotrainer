@@ -9,28 +9,32 @@ All three requested changes have been successfully implemented to the AstroTrain
 ## ✅ CHANGE 1: ADVANCED CONSTELLATION PRACTICE WITH TEXT INPUT
 
 ### Implementation Details:
+
 - **Modified DIFFICULTY_PROFILE**: Advanced mode now shows IAU boundary (`showBoundary: true`)
 - **Text Input UI**: Replaces multiple-choice buttons in Advanced mode
-- **Case-Insensitive Validation**: Accepts "Orion", "orion", "ORION", "  Orion", etc.
+- **Case-Insensitive Validation**: Accepts "Orion", "orion", "ORION", " Orion", etc.
 - **User Feedback**: Shows what user entered when incorrect
 - **Backward Compatible**: Beginner and Intermediate modes completely unchanged
 
 ### Files Changed:
+
 - `src/lib/astro/questions.ts` - Updated DIFFICULTY_PROFILE
 - `src/routes/practice.tsx` - Added text input handling and validation
 
 ### Key Features:
+
 ✅ Type constellation name to answer  
 ✅ Case-insensitive matching with whitespace trimming  
 ✅ Shows IAU boundary before answering  
 ✅ Post-answer reveals constellation figure  
-✅ Maintains all existing scoring and progress tracking  
+✅ Maintains all existing scoring and progress tracking
 
 ---
 
 ## ✅ CHANGE 3: BAYER DESIGNATIONS FOR BRIGHT STARS
 
 ### Implementation Details:
+
 - **Bayer Symbol Conversion**: Maps "Alp" → "α", "Bet" → "β", etc.
 - **Two Display Formats**:
   - Full: "Betelgeuse — α Ori" (for information sections)
@@ -39,23 +43,26 @@ All three requested changes have been successfully implemented to the AstroTrain
 - **Data-Driven**: Uses existing star catalog data (no fabricated data)
 
 ### Files Changed:
+
 - `src/lib/astro/catalog.ts` - Added Bayer utility functions
 - `src/routes/constellations.index.tsx` - Show Bayer in atlas
 - `src/components/app/ConstellationFacts.tsx` - Show Bayer in post-answer reveal
 - `src/components/sky/StarMap.tsx` - Show Bayer in constellation diagrams
 
 ### Key Features:
+
 ✅ Accurate Bayer designations from star data  
 ✅ Clean, readable formatting  
 ✅ Multiple display formats for different contexts  
 ✅ No visual overcrowding  
-✅ Enhanced educational value  
+✅ Enhanced educational value
 
 ---
 
 ## ✅ CHANGE 2: OFFICIAL IAU IMAGES PRACTICE MODE
 
 ### Implementation Details:
+
 - **New Mode Selector**: "Constellation Identification" vs "Official IAU Images"
 - **Question Generator**: Dedicated generator for image-based questions
 - **Image Display**: Shows constellation image instead of sky map
@@ -63,24 +70,29 @@ All three requested changes have been successfully implemented to the AstroTrain
 - **Graceful Error Handling**: Shows helpful message if images missing
 
 ### Files Changed:
+
 - `src/lib/astro/types.ts` - Added new question type
 - `src/lib/astro/questions.ts` - Added image question generator
 - `src/routes/practice.tsx` - Added mode selector and image display
 
 ### Files Created:
+
 - `/public/iau-constellations/README.md` - Licensing and setup guide
 - `/public/iau-constellations/` - Directory for images
 
 ### Key Features:
+
 ✅ Clean mode selection interface  
 ✅ 4 multiple-choice answers per question  
 ✅ Plausible distractor constellations  
 ✅ Independent question generation  
 ✅ Ready for licensed IAU images  
-✅ Graceful error handling for missing images  
+✅ Graceful error handling for missing images
 
 ### Next Steps (Manual):
+
 To enable the IAU Images feature with actual images:
+
 1. Source licensed constellation images (see `public/iau-constellations/README.md`)
 2. Save JPG files as `{constellation-id}.jpg` (e.g., `ori.jpg`, `leo.jpg`)
 3. Place in `/public/iau-constellations/` directory
@@ -91,18 +103,21 @@ To enable the IAU Images feature with actual images:
 ## Build & Verification
 
 ### ✅ Build Status: SUCCESSFUL
+
 - Clean builds with no errors
 - All TypeScript checks pass
 - No console warnings
 - Ready for deployment
 
 ### ✅ Backward Compatibility: VERIFIED
+
 - All existing features work exactly as before
 - No breaking changes
 - Existing progress data unaffected
 - Session structure unchanged
 
 ### ✅ Code Quality: VERIFIED
+
 - No duplicate code
 - Reused existing architecture
 - Consistent styling and patterns
@@ -113,6 +128,7 @@ To enable the IAU Images feature with actual images:
 ## Modified Files
 
 ### Core Logic Changes:
+
 1. **src/lib/astro/questions.ts**
    - Updated DIFFICULTY_PROFILE for Advanced mode
    - Added generateIAUImageQuestion()
@@ -128,6 +144,7 @@ To enable the IAU Images feature with actual images:
    - Added starLabelCompact() for compact format
 
 ### UI/Component Changes:
+
 4. **src/routes/practice.tsx**
    - Added PracticeMode type selector
    - Added text input field for Advanced mode
@@ -148,6 +165,7 @@ To enable the IAU Images feature with actual images:
    - Updated star label rendering to use compact Bayer format
 
 ### Documentation Files Created:
+
 - `IMPLEMENTATION_SUMMARY.md` - Comprehensive implementation details
 - `TESTING_GUIDE.md` - Complete testing checklist
 - `public/iau-constellations/README.md` - Image sourcing guide
@@ -157,6 +175,7 @@ To enable the IAU Images feature with actual images:
 ## Testing Recommendations
 
 ### Critical Path Testing:
+
 1. **Advanced Mode**: Type "Orion" in different cases, verify it works
 2. **Beginner/Intermediate**: Verify multiple-choice buttons still appear
 3. **Bayer Display**: Browse atlas, check constellation info shows Bayer
@@ -164,7 +183,9 @@ To enable the IAU Images feature with actual images:
 5. **Build & Deploy**: Run production build, verify no errors
 
 ### Full Test Coverage:
+
 See `TESTING_GUIDE.md` for comprehensive testing checklist with 40+ test cases covering:
+
 - All three difficulty levels
 - Text input validation
 - Bayer designation display

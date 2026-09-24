@@ -1,102 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<meta charset="utf-8">
-<title>Messier Image Candidates</title>
+  <head>
+    <meta charset="utf-8" />
+    <title>Messier Image Candidates</title>
 
-<style>
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #111;
-    color: #eee;
-    margin: 0;
-    padding: 30px;
-}
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #111;
+        color: #eee;
+        margin: 0;
+        padding: 30px;
+      }
 
-h1 {
-    margin-top: 0;
-}
+      h1 {
+        margin-top: 0;
+      }
 
-section {
-    margin-bottom: 50px;
-    border-bottom: 1px solid #333;
-    padding-bottom: 30px;
-}
+      section {
+        margin-bottom: 50px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 30px;
+      }
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-}
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
 
-.image-card {
-    background: #1d1d1d;
-    border-radius: 10px;
-    padding: 10px;
-}
+      .image-card {
+        background: #1d1d1d;
+        border-radius: 10px;
+        padding: 10px;
+      }
 
-.image-card img {
-    width: 100%;
-    height: 240px;
-    object-fit: contain;
-    background: #000;
-    border-radius: 6px;
-}
+      .image-card img {
+        width: 100%;
+        height: 240px;
+        object-fit: contain;
+        background: #000;
+        border-radius: 6px;
+      }
 
-.filename {
-    font-size: 13px;
-    margin-top: 8px;
-    word-break: break-all;
-    color: #aaa;
-}
-</style>
+      .filename {
+        font-size: 13px;
+        margin-top: 8px;
+        word-break: break-all;
+        color: #aaa;
+      }
+    </style>
+  </head>
 
-</head>
+  <body>
+    <h1>AstroTrainer — Messier Image Candidates</h1>
 
-<body>
+    <p>
+      Review the candidate images below. The downloaded files are in the
+      <code>candidates/</code> directory.
+    </p>
 
-<h1>AstroTrainer — Messier Image Candidates</h1>
+    <section>
+      <h2>M2</h2>
+      <div class="grid">
+        <div class="image-card">
+          <img src="../candidates/M2/01.tif" />
+          <div class="filename">01.tif</div>
+        </div>
 
-<p>
-Review the candidate images below.
-The downloaded files are in the <code>candidates/</code> directory.
-</p>
+        <div class="image-card">
+          <img src="../candidates/M2/02.jpg" />
+          <div class="filename">02.jpg</div>
+        </div>
 
+        <div class="image-card">
+          <img src="../candidates/M2/03.jpg" />
+          <div class="filename">03.jpg</div>
+        </div>
+      </div>
+    </section>
 
-            <section>
-                <h2>M2</h2>
-                <div class="grid">
-                    
-                <div class="image-card">
-                    <img src="../candidates/M2/01.tif">
-                    <div class="filename">01.tif</div>
-                </div>
-                
-                <div class="image-card">
-                    <img src="../candidates/M2/02.jpg">
-                    <div class="filename">02.jpg</div>
-                </div>
-                
-                <div class="image-card">
-                    <img src="../candidates/M2/03.jpg">
-                    <div class="filename">03.jpg</div>
-                </div>
-                
-                </div>
-            </section>
-            
-            <section>
-                <h2>M3</h2>
-                <div class="grid">
-                    
-                <div class="image-card">
-                    <img src="../candidates/M3/01.jpg">
-                    <div class="filename">01.jpg</div>
-                </div>
-                
-                </div>
-            </section>
-            
-
-</body>
+    <section>
+      <h2>M3</h2>
+      <div class="grid">
+        <div class="image-card">
+          <img src="../candidates/M3/01.jpg" />
+          <div class="filename">01.jpg</div>
+        </div>
+      </div>
+    </section>
+  </body>
 </html>

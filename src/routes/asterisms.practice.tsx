@@ -42,9 +42,21 @@ export const Route = createFileRoute("/asterisms/practice")({
 });
 
 const DIFFICULTIES: { id: AsterismDifficulty; label: string; blurb: string }[] = [
-  { id: "beginner", label: "Beginner", blurb: "Pattern lines, star labels and boundaries, four choices" },
-  { id: "intermediate", label: "Intermediate", blurb: "Parent constellation boundary only, no lines or labels" },
-  { id: "advanced", label: "Advanced", blurb: "Type the asterism name on a bare, rotated star field" },
+  {
+    id: "beginner",
+    label: "Beginner",
+    blurb: "Pattern lines, star labels and boundaries, four choices",
+  },
+  {
+    id: "intermediate",
+    label: "Intermediate",
+    blurb: "Parent constellation boundary only, no lines or labels",
+  },
+  {
+    id: "advanced",
+    label: "Advanced",
+    blurb: "Type the asterism name on a bare, rotated star field",
+  },
 ];
 
 const QUESTIONS_PER_SESSION = 10;
@@ -92,7 +104,8 @@ function buildQuestion(difficulty: AsterismDifficulty): AsterismQuestion {
   const pool = [...shuffle(sameCategory), ...shuffle(rest)];
   const choices = shuffle([target, ...pool.slice(0, 3)]);
 
-  const rotation = difficulty === "beginner" ? 0 : (Math.random() - 0.5) * (difficulty === "advanced" ? 90 : 40);
+  const rotation =
+    difficulty === "beginner" ? 0 : (Math.random() - 0.5) * (difficulty === "advanced" ? 90 : 40);
 
   return {
     id: `${target.id}-${Date.now()}`,
@@ -227,7 +240,12 @@ function AsterismPractice() {
   if (!question) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-        <Button asChild variant="ghost" size="sm" className="-ml-2 mb-3 gap-1.5 text-muted-foreground">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 mb-3 gap-1.5 text-muted-foreground"
+        >
           <Link to="/asterisms">
             <ArrowLeft className="size-4" /> Asterisms
           </Link>

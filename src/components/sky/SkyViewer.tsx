@@ -88,23 +88,43 @@ export function SkyViewer({
       />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-1.5 p-2 sm:p-3">
         <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-md border border-border/70 bg-background/70 p-1 backdrop-blur">
-          <Button variant="ghost" size="icon" className="size-8" aria-label="Zoom in" onClick={() => mapRef.current?.zoomBy(1.35)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            aria-label="Zoom in"
+            onClick={() => mapRef.current?.zoomBy(1.35)}
+          >
             <Plus className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="size-8" aria-label="Zoom out" onClick={() => mapRef.current?.zoomBy(1 / 1.35)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            aria-label="Zoom out"
+            onClick={() => mapRef.current?.zoomBy(1 / 1.35)}
+          >
             <Minus className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="size-8" aria-label="Reset view" onClick={() => mapRef.current?.reset()}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            aria-label="Reset view"
+            onClick={() => mapRef.current?.reset()}
+          >
             <RotateCcw className="size-4" />
           </Button>
-
         </div>
         {!lockToggles && (
           <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-md border border-border/70 bg-background/70 p-1 backdrop-blur">
             <Button
               variant="ghost"
               size="sm"
-              className={cn("h-8 gap-1.5 px-2 text-xs", lines ? "text-primary" : "text-muted-foreground")}
+              className={cn(
+                "h-8 gap-1.5 px-2 text-xs",
+                lines ? "text-primary" : "text-muted-foreground",
+              )}
               onClick={() => setLines((v) => !v)}
               aria-pressed={lines}
             >
@@ -113,7 +133,10 @@ export function SkyViewer({
             <Button
               variant="ghost"
               size="sm"
-              className={cn("h-8 gap-1.5 px-2 text-xs", labels ? "text-primary" : "text-muted-foreground")}
+              className={cn(
+                "h-8 gap-1.5 px-2 text-xs",
+                labels ? "text-primary" : "text-muted-foreground",
+              )}
               onClick={() => setLabels((v) => !v)}
               aria-pressed={labels}
             >
@@ -122,7 +145,10 @@ export function SkyViewer({
             <Button
               variant="ghost"
               size="sm"
-              className={cn("h-8 gap-1.5 px-2 text-xs", boundary ? "text-primary" : "text-muted-foreground")}
+              className={cn(
+                "h-8 gap-1.5 px-2 text-xs",
+                boundary ? "text-primary" : "text-muted-foreground",
+              )}
               onClick={() => setBoundary((v) => !v)}
               aria-pressed={boundary}
             >
@@ -131,7 +157,10 @@ export function SkyViewer({
             <Button
               variant="ghost"
               size="sm"
-              className={cn("h-8 gap-1.5 px-2 text-xs", grid ? "text-primary" : "text-muted-foreground")}
+              className={cn(
+                "h-8 gap-1.5 px-2 text-xs",
+                grid ? "text-primary" : "text-muted-foreground",
+              )}
               onClick={() => setGrid((v) => !v)}
               aria-pressed={grid}
             >

@@ -48,9 +48,9 @@ stars.forEach((s, i) => {
   starVectors[i * 3 + 2] = Math.sin(dec);
 });
 
-export const constellations: Constellation[] = (
-  rawConstellations as Constellation[]
-).slice().sort((a, b) => a.name.localeCompare(b.name));
+export const constellations: Constellation[] = (rawConstellations as Constellation[])
+  .slice()
+  .sort((a, b) => a.name.localeCompare(b.name));
 
 export const constellationById = new Map<string, Constellation>(
   constellations.map((c) => [c.id, c]),
@@ -62,30 +62,30 @@ export function getConstellation(id: string): Constellation | undefined {
 
 /** Bayer letter abbreviations to Greek letter mapping. */
 const BAYER_SYMBOLS: Record<string, string> = {
-  "Alp": "α",
-  "Bet": "β",
-  "Gam": "γ",
-  "Del": "δ",
-  "Eps": "ε",
-  "Zet": "ζ",
-  "Eta": "η",
-  "The": "θ",
-  "Iot": "ι",
-  "Kap": "κ",
-  "Lam": "λ",
-  "Mu": "μ",
-  "Nu": "ν",
-  "Xi": "ξ",
-  "Omi": "ο",
-  "Pi": "π",
-  "Rho": "ρ",
-  "Sig": "σ",
-  "Tau": "τ",
-  "Ups": "υ",
-  "Phi": "φ",
-  "Chi": "χ",
-  "Psi": "ψ",
-  "Ome": "ω",
+  Alp: "α",
+  Bet: "β",
+  Gam: "γ",
+  Del: "δ",
+  Eps: "ε",
+  Zet: "ζ",
+  Eta: "η",
+  The: "θ",
+  Iot: "ι",
+  Kap: "κ",
+  Lam: "λ",
+  Mu: "μ",
+  Nu: "ν",
+  Xi: "ξ",
+  Omi: "ο",
+  Pi: "π",
+  Rho: "ρ",
+  Sig: "σ",
+  Tau: "τ",
+  Ups: "υ",
+  Phi: "φ",
+  Chi: "χ",
+  Psi: "ψ",
+  Ome: "ω",
 };
 
 /** Convert Bayer code (e.g., "Alp") to Greek symbol (e.g., "α"). */
@@ -139,12 +139,7 @@ export function starLabel(s: Star): string {
 }
 
 /** Angular separation in degrees. */
-export function angularSeparation(
-  ra1: number,
-  dec1: number,
-  ra2: number,
-  dec2: number,
-): number {
+export function angularSeparation(ra1: number, dec1: number, ra2: number, dec2: number): number {
   const a = dec1 * DEG;
   const b = dec2 * DEG;
   const d = (ra1 - ra2) * DEG;
@@ -166,7 +161,7 @@ export function centroid(list: Star[]): { ra: number; dec: number } {
   }
   const r = Math.hypot(x, y, z) || 1;
   return {
-    ra: ((Math.atan2(y, x) / DEG) % 360 + 360) % 360,
+    ra: (((Math.atan2(y, x) / DEG) % 360) + 360) % 360,
     dec: Math.asin(z / r) / DEG,
   };
 }

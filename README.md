@@ -38,15 +38,15 @@ It should feel like:
 
 Stellarium
 
-+
+-
 
 an interactive astronomy atlas
 
-+
+-
 
 a Duolingo-style practice system
 
-+
+-
 
 an astronomy olympiad observation trainer.
 
@@ -542,11 +542,11 @@ Example:
 
 {
 
-  "id": "ori",
+"id": "ori",
 
-  "name": "Orion",
+"name": "Orion",
 
-  "lineData": [
+"lineData": [
 
     ["betelgeuse", "bellatrix"],
 
@@ -556,7 +556,7 @@ Example:
 
     ...
 
-  ]
+]
 
 }
 
@@ -768,27 +768,27 @@ Conceptually:
 
 {
 
-  id,
+id,
 
-  name,
+name,
 
-  abbreviation,
+abbreviation,
 
-  description,
+description,
 
-  figure,
+figure,
 
-  hemisphere,
+hemisphere,
 
-  region,
+region,
 
-  isEcliptic,
+isEcliptic,
 
-  brightStars,
+brightStars,
 
-  lineData,
+lineData,
 
-  bestSeason
+bestSeason
 
 }
 
@@ -804,17 +804,17 @@ Stars should contain:
 
 {
 
-  id,
+id,
 
-  name,
+name,
 
-  bayer,
+bayer,
 
-  ra,
+ra,
 
-  dec,
+dec,
 
-  magnitude
+magnitude
 
 }
 
@@ -1182,7 +1182,7 @@ Add a small unobtrusive compass:
 
       ↑
 
-W ←   +   → E
+W ← + → E
 
       ↓
 
@@ -1660,17 +1660,17 @@ Per constellation:
 
 {
 
-  attempts,
+attempts,
 
-  correct,
+correct,
 
-  incorrect,
+incorrect,
 
-  accuracy,
+accuracy,
 
-  averageTime,
+averageTime,
 
-  bestScore
+bestScore
 
 }
 
@@ -2012,19 +2012,19 @@ A question should conceptually contain:
 
 {
 
-  id,
+id,
 
-  type,
+type,
 
-  target,
+target,
 
-  difficulty,
+difficulty,
 
-  skyState,
+skyState,
 
-  choices,
+choices,
 
-  correctAnswer
+correctAnswer
 
 }
 
@@ -2080,21 +2080,21 @@ Future Messier data should contain:
 
 {
 
-  id,
+id,
 
-  name,
+name,
 
-  commonName,
+commonName,
 
-  ra,
+ra,
 
-  dec,
+dec,
 
-  magnitude,
+magnitude,
 
-  type,
+type,
 
-  constellation
+constellation
 
 }
 

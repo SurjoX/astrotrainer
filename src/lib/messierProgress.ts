@@ -47,7 +47,9 @@ export const emptyMessierProgress: MessierProgressState = {
 export function loadMessierProgress(): MessierProgressState {
   if (typeof window === "undefined") return emptyMessierProgress;
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(KEY) ?? "null") as Partial<MessierProgressState> | null;
+    const parsed = JSON.parse(
+      window.localStorage.getItem(KEY) ?? "null",
+    ) as Partial<MessierProgressState> | null;
     return {
       ...emptyMessierProgress,
       ...parsed,

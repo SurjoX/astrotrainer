@@ -2,12 +2,7 @@ import rawMessier from "@/data/messier.json";
 import { getConstellation } from "./catalog";
 
 export type MessierType =
-  | "Galaxy"
-  | "Nebula"
-  | "Open Cluster"
-  | "Globular Cluster"
-  | "Planetary Nebula"
-  | "Other";
+  "Galaxy" | "Nebula" | "Open Cluster" | "Globular Cluster" | "Planetary Nebula" | "Other";
 
 interface RawMessier {
   n: number;
@@ -93,7 +88,11 @@ export function getMessier(id: string): MessierObject | undefined {
 }
 
 export function normalizeMessierAnswer(value: string): string {
-  return value.trim().toLowerCase().replace(/\s+/g, " ").replace(/^m\s*(\d+)$/, "m$1");
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/^m\s*(\d+)$/, "m$1");
 }
 
 export function matchesMessierAnswer(object: MessierObject, value: string): boolean {
@@ -125,7 +124,8 @@ export function randomMessier(excludeId?: string): MessierObject {
 
 export function validateMessierData(): string[] {
   const errors: string[] = [];
-  if (messierObjects.length !== 110) errors.push(`Expected 110 Messier objects, found ${messierObjects.length}`);
+  if (messierObjects.length !== 110)
+    errors.push(`Expected 110 Messier objects, found ${messierObjects.length}`);
   const ids = new Set<string>();
   for (const object of messierObjects) {
     if (ids.has(object.id)) errors.push(`Duplicate Messier id: ${object.id}`);
@@ -133,7 +133,8 @@ export function validateMessierData(): string[] {
     if (object.number < 1 || object.number > 110) errors.push(`${object.id}: number out of range`);
     if (!(object.ra >= 0 && object.ra < 360)) errors.push(`${object.id}: RA out of range`);
     if (!(object.dec >= -90 && object.dec <= 90)) errors.push(`${object.id}: Dec out of range`);
-    if (!getConstellation(object.constellationId)) errors.push(`${object.id}: unknown constellation ${object.constellationId}`);
+    if (!getConstellation(object.constellationId))
+      errors.push(`${object.id}: unknown constellation ${object.constellationId}`);
   }
   for (let number = 1; number <= 110; number += 1) {
     if (!ids.has(`M${number}`)) errors.push(`Missing Messier id: M${number}`);

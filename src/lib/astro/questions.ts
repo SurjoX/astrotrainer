@@ -90,7 +90,11 @@ export function distractorsFor(target: Constellation, count = 3): Constellation[
       return { c, score: dist / 45 + sizeRatio * 1.5 + shapeDiff + zodiacBonus + rng() * 0.6 };
     })
     .sort((a, b) => a.score - b.score);
-  return scored.slice(0, Math.max(count, 8)).sort(() => rng() - 0.5).slice(0, count).map((s) => s.c);
+  return scored
+    .slice(0, Math.max(count, 8))
+    .sort(() => rng() - 0.5)
+    .slice(0, count)
+    .map((s) => s.c);
 }
 
 export function buildSkyState(c: Constellation, difficulty: Difficulty): SkyState {
@@ -112,10 +116,7 @@ export function buildSkyState(c: Constellation, difficulty: Difficulty): SkyStat
 
 let seq = 0;
 
-export function generateConstellationQuestion(
-  difficulty: Difficulty,
-  pool?: string[],
-): Question {
+export function generateConstellationQuestion(difficulty: Difficulty, pool?: string[]): Question {
   const candidates = pool?.length
     ? (pool.map(getConstellation).filter(Boolean) as Constellation[])
     : constellations;

@@ -27,10 +27,7 @@ export type AsterismCategory = (typeof ASTERISM_CATEGORIES)[number];
 
 /** How firmly the pattern is established in observational literature. */
 export type Recognition =
-  | "Widely recognised"
-  | "Traditional"
-  | "Observational pattern"
-  | "Cluster asterism";
+  "Widely recognised" | "Traditional" | "Observational pattern" | "Cluster asterism";
 
 export type AsterismDifficulty = "beginner" | "intermediate" | "advanced";
 export type Hemisphere = "north" | "south" | "both";

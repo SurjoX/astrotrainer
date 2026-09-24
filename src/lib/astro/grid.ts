@@ -55,9 +55,9 @@ export function buildGrid(
     const hi = Math.min(90, centerDec + radiusDeg);
     const pts: [number, number][] = [];
     for (let dec = lo; dec <= hi + 1e-9; dec += sample) {
-      pts.push([(((ra % 360) + 360) % 360), dec]);
+      pts.push([((ra % 360) + 360) % 360, dec]);
     }
-    const norm = (((ra % 360) + 360) % 360);
+    const norm = ((ra % 360) + 360) % 360;
     lines.push({ points: pts, meridian: true, value: norm, major: Math.abs(norm) < 1e-9 });
   }
 

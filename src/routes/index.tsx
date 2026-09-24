@@ -55,9 +55,9 @@ function Index() {
             ASTROTRAINER
           </h1>
           <p className="mt-4 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Every field is rendered live from the Bright Star Catalogue with real J2000
-            coordinates and magnitudes, and every stick figure comes from the modern
-            Stellarium sky culture. Recognise patterns, not screenshots.
+            Every field is rendered live from the Bright Star Catalogue with real J2000 coordinates
+            and magnitudes, and every stick figure comes from the modern Stellarium sky culture.
+            Recognise patterns, not screenshots.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Button asChild size="lg">
@@ -67,7 +67,6 @@ function Index() {
               <Link to="/progress">View Progress</Link>
             </Button>
           </div>
-
         </div>
         <div className="panel overflow-hidden">
           <SkyViewer
@@ -103,17 +102,15 @@ function Index() {
         </div>
       </section>
 
-
       <section className="mt-10">
         <h2 className="label-caps">Asterisms</h2>
         <div className="panel mt-3 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-display text-lg">Patterns beyond the 88</p>
             <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-              Asterisms are recognisable star patterns that are not official IAU
-              constellations — some sit inside one constellation, like the Big Dipper, and
-              others span several, like the Summer Triangle. Train them separately from
-              constellation identification.
+              Asterisms are recognisable star patterns that are not official IAU constellations —
+              some sit inside one constellation, like the Big Dipper, and others span several, like
+              the Summer Triangle. Train them separately from constellation identification.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 sm:shrink-0">
@@ -133,26 +130,29 @@ function Index() {
           <div>
             <p className="font-display text-lg">The complete M1–M110 deep-sky catalog</p>
             <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-              Browse galaxies, nebulae and star clusters with real J2000 positions, local image support and focused practice modes.
+              Browse galaxies, nebulae and star clusters with real J2000 positions, local image
+              support and focused practice modes.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 sm:shrink-0">
-            <Button asChild variant="secondary"><Link to="/messier">Browse Messier</Link></Button>
-            <Button asChild><Link to="/messier/practice">Practice Messier</Link></Button>
+            <Button asChild variant="secondary">
+              <Link to="/messier">Browse Messier</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/messier/practice">Practice Messier</Link>
+            </Button>
           </div>
         </div>
       </section>
 
       <section className="mt-10">
-
         <h2 className="label-caps">Your dashboard</h2>
         {ready && !hasHistory ? (
           <div className="panel mt-3 p-6">
             <p className="font-display text-lg">No observations logged yet</p>
             <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-              Start with Beginner mode — the conventional stick figure is drawn over the
-              stars while you learn. Progress is stored locally in this browser; no account
-              needed.
+              Start with Beginner mode — the conventional stick figure is drawn over the stars while
+              you learn. Progress is stored locally in this browser; no account needed.
             </p>
             <Button asChild className="mt-4" variant="secondary">
               <Link to="/practice">Begin your first session</Link>

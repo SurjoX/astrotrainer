@@ -72,9 +72,7 @@ export class Projection {
     const cosC = Math.cos(c);
     if (r === 0) return { ra: this.view.ra, dec: this.view.dec };
     const dec = Math.asin(cosC * this.sinD0 + (py * sinC * this.cosD0) / r);
-    const ra =
-      this.ra0 +
-      Math.atan2(-px * sinC, r * this.cosD0 * cosC - py * this.sinD0 * sinC);
+    const ra = this.ra0 + Math.atan2(-px * sinC, r * this.cosD0 * cosC - py * this.sinD0 * sinC);
     return {
       ra: (((ra / DEG) % 360) + 360) % 360,
       dec: dec / DEG,

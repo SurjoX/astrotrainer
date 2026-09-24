@@ -5,12 +5,14 @@ This directory should contain official IAU constellation images for the "Officia
 ## Image Format
 
 Each constellation should have a corresponding image file named `{constellation-id}.jpg`, for example:
+
 - `ori.jpg` (Orion)
 - `leo.jpg` (Leo)
 - `her.jpg` (Hercules)
 - etc.
 
 Image specifications:
+
 - Format: JPG (approximately 1000x1000px minimum)
 - Aspect ratio: Square or landscape
 - Content: Official IAU constellation illustration
@@ -37,6 +39,7 @@ Before adding any images to this directory:
 ### Recommended Approach
 
 For a production implementation, consider:
+
 - Using Wikimedia Commons constellation images (check CC licenses)
 - Creating custom illustrations consistent with the application's style
 - Licensing official IAU artwork if available
@@ -48,7 +51,7 @@ The image display is implemented and ready to show images. As soon as properly-l
 
 ## Implementation Notes
 
-- Images are loaded from `/public/iau-constellations/{id}.jpg` 
+- Images are loaded from `/public/iau-constellations/{id}.jpg`
 - Constellation IDs are the 3-letter abbreviations (lowercase) from the IAU catalog
 - The application gracefully handles missing images with a helpful error message
 - Image height is limited to 60vh to fit on screen with answer choices

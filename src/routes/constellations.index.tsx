@@ -4,11 +4,7 @@ import { Download, Search, Shuffle, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  constellations,
-  importantStars,
-  starLabelWithBayer,
-} from "@/lib/astro/catalog";
+import { constellations, importantStars, starLabelWithBayer } from "@/lib/astro/catalog";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/constellations/")({
@@ -36,13 +32,7 @@ export const Route = createFileRoute("/constellations/")({
   component: AtlasPage,
 });
 
-const CATEGORIES = [
-  "All",
-  "Northern",
-  "Equatorial",
-  "Southern",
-  "Ecliptic",
-] as const;
+const CATEGORIES = ["All", "Northern", "Equatorial", "Southern", "Ecliptic"] as const;
 
 type Category = (typeof CATEGORIES)[number];
 
@@ -53,9 +43,9 @@ function AtlasPage() {
   const [category, setCategory] = useState<Category>("All");
 
   // The constellation whose IAU chart is currently open.
-  const [iauConstellation, setIauConstellation] = useState<
-    (typeof constellations)[number] | null
-  >(null);
+  const [iauConstellation, setIauConstellation] = useState<(typeof constellations)[number] | null>(
+    null,
+  );
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -68,10 +58,7 @@ function AtlasPage() {
         c.figure.toLowerCase().includes(q);
 
       const matchesCategory =
-        category === "All" ||
-        (category === "Ecliptic"
-          ? c.isEcliptic
-          : c.region === category);
+        category === "All" || (category === "Ecliptic" ? c.isEcliptic : c.region === category);
 
       return matchesQuery && matchesCategory;
     });
@@ -79,10 +66,7 @@ function AtlasPage() {
 
   // Pick a random constellation.
   const random = () => {
-    const c =
-      constellations[
-        Math.floor(Math.random() * constellations.length)
-      ]!;
+    const c = constellations[Math.floor(Math.random() * constellations.length)]!;
 
     navigate({
       to: "/constellations/$id",
@@ -112,28 +96,20 @@ function AtlasPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-
       {/* ====================================================== */}
       {/* PAGE HEADER                                            */}
       {/* ====================================================== */}
 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-bold">
-            Constellation Atlas
-          </h1>
+          <h1 className="font-display text-3xl font-bold">Constellation Atlas</h1>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            All 88 official IAU constellations, drawn with the
-            modern Stellarium line figures.
+            All 88 official IAU constellations, drawn with the modern Stellarium line figures.
           </p>
         </div>
 
-        <Button
-          variant="secondary"
-          onClick={random}
-          className="gap-2"
-        >
+        <Button variant="secondary" onClick={random} className="gap-2">
           <Shuffle className="size-4" />
           Random Constellation
         </Button>
@@ -144,12 +120,9 @@ function AtlasPage() {
       {/* ====================================================== */}
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-
         {/* Search */}
         <div className="relative sm:max-w-xs sm:flex-1">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
           <Input
             value={query}
@@ -190,25 +163,16 @@ function AtlasPage() {
 
       <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((c) => (
-          <li
-            key={c.id}
-            className="panel flex flex-col p-4"
-          >
+          <li key={c.id} className="panel flex flex-col p-4">
             {/* Name + abbreviation */}
             <div className="flex items-baseline justify-between gap-2">
-              <h2 className="font-display text-lg font-semibold">
-                {c.name}
-              </h2>
+              <h2 className="font-display text-lg font-semibold">{c.name}</h2>
 
-              <span className="font-mono text-xs text-muted-foreground">
-                {c.abbreviation}
-              </span>
+              <span className="font-mono text-xs text-muted-foreground">{c.abbreviation}</span>
             </div>
 
             {/* Figure */}
-            <p className="text-sm text-primary">
-              {c.figure}
-            </p>
+            <p className="text-sm text-primary">{c.figure}</p>
 
             {/* Description */}
             <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
@@ -217,27 +181,18 @@ function AtlasPage() {
 
             {/* Bright stars */}
             <p className="mt-3 text-xs">
-              <span className="label-caps">
-                Bright stars{" "}
-              </span>
+              <span className="label-caps">Bright stars </span>
 
               <span className="text-muted-foreground">
-                {importantStars(c)
-                  .slice(0, 4)
-                  .map(starLabelWithBayer)
-                  .join(", ") || "—"}
+                {importantStars(c).slice(0, 4).map(starLabelWithBayer).join(", ") || "—"}
               </span>
             </p>
 
             {/* Best observed */}
             <p className="mt-1 text-xs">
-              <span className="label-caps">
-                Best observed{" "}
-              </span>
+              <span className="label-caps">Best observed </span>
 
-              <span className="text-muted-foreground">
-                {c.bestSeason}
-              </span>
+              <span className="text-muted-foreground">{c.bestSeason}</span>
             </p>
 
             {/* ================================================== */}
@@ -245,27 +200,15 @@ function AtlasPage() {
             {/* ================================================== */}
 
             <div className="mt-4 flex flex-wrap gap-2">
-
               {/* View in Sky */}
-              <Button
-                asChild
-                variant="secondary"
-                size="sm"
-              >
-                <Link
-                  to="/constellations/$id"
-                  params={{ id: c.id }}
-                >
+              <Button asChild variant="secondary" size="sm">
+                <Link to="/constellations/$id" params={{ id: c.id }}>
                   View in Sky
                 </Link>
               </Button>
 
               {/* IAU Chart */}
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setIauConstellation(c)}
-              >
+              <Button variant="secondary" size="sm" onClick={() => setIauConstellation(c)}>
                 IAU Chart
               </Button>
             </div>
@@ -308,39 +251,26 @@ function AtlasPage() {
           {/* ================================================== */}
 
           <div className="flex h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
-
             {/* ================================================= */}
             {/* MODAL HEADER                                     */}
             {/* ================================================= */}
 
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
-
               {/* Title */}
               <div className="min-w-0">
-                <h2 className="font-display text-lg font-semibold">
-                  {iauConstellation.name}
-                </h2>
+                <h2 className="font-display text-lg font-semibold">{iauConstellation.name}</h2>
 
-                <p className="text-xs text-muted-foreground">
-                  Official IAU constellation chart
-                </p>
+                <p className="text-xs text-muted-foreground">Official IAU constellation chart</p>
               </div>
 
               {/* Header actions */}
               <div className="flex shrink-0 items-center gap-2">
-
                 {/* Download PDF */}
                 <a
-                  href={getIauPdfPath(
-                    iauConstellation.abbreviation,
-                  )}
+                  href={getIauPdfPath(iauConstellation.abbreviation)}
                   download={`${iauConstellation.abbreviation.toLowerCase()}.pdf`}
                 >
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="gap-2"
-                  >
+                  <Button variant="secondary" size="sm" className="gap-2">
                     <Download className="size-4" />
                     Download PDF
                   </Button>
@@ -364,9 +294,7 @@ function AtlasPage() {
 
             <div className="min-h-0 flex-1 bg-muted">
               <iframe
-                src={getIauPdfPath(
-                  iauConstellation.abbreviation,
-                )}
+                src={getIauPdfPath(iauConstellation.abbreviation)}
                 title={`${iauConstellation.name} IAU chart`}
                 className="h-full w-full border-0"
               />

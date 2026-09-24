@@ -1,6 +1,7 @@
 import { boundaryOf } from "./boundaries";
 import { constellations, starById } from "./catalog";
 import { validateMessierData } from "./messier";
+import { validateStarCatalog } from "./starPractice";
 
 export interface ValidationResult {
   ok: boolean;
@@ -14,6 +15,7 @@ export function validateAstronomyData(): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   errors.push(...validateMessierData());
+  errors.push(...validateStarCatalog());
   const ids = new Set<string>();
   const abbrs = new Set<string>();
   let segments = 0;
@@ -63,8 +65,10 @@ export function validateAstronomyData(): ValidationResult {
   }
 
   const ecliptic = constellations.filter((c) => c.isEcliptic);
-  if (ecliptic.length !== 13) errors.push(`Ecliptic set should hold 13 constellations, found ${ecliptic.length}`);
-  if (!ecliptic.some((c) => c.id === "oph")) errors.push("Ophiuchus is missing from the ecliptic set");
+  if (ecliptic.length !== 13)
+    errors.push(`Ecliptic set should hold 13 constellations, found ${ecliptic.length}`);
+  if (!ecliptic.some((c) => c.id === "oph"))
+    errors.push("Ophiuchus is missing from the ecliptic set");
 
   return {
     ok: errors.length === 0,

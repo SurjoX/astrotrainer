@@ -13,6 +13,7 @@ interface SkyViewerProps {
   view?: ViewState;
   magnitudeLimit?: number;
   defaultLines?: boolean;
+  showAllConstellationLines?: boolean;
   defaultLabels?: boolean;
   defaultBoundary?: boolean;
   defaultGrid?: boolean;
@@ -38,6 +39,7 @@ export function SkyViewer({
   view,
   magnitudeLimit = 6.2,
   defaultLines = true,
+  showAllConstellationLines = false,
   defaultLabels = true,
   defaultBoundary = false,
   defaultGrid = false,
@@ -76,6 +78,7 @@ export function SkyViewer({
         view={baseView}
         magnitudeLimit={magnitudeLimit}
         showLines={lines}
+        showAllConstellationLines={showAllConstellationLines}
         showBoundary={boundary}
         showGrid={grid}
         labelMode={labels ? labelModeWhenOn : "none"}

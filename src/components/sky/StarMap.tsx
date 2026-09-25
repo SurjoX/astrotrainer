@@ -9,6 +9,7 @@ import {
 } from "react";
 import {
   angularSeparation,
+  constellations,
   importantStars,
   starById,
   starLabelCompact,
@@ -34,6 +35,8 @@ export interface StarMapProps {
   view: ViewState;
   magnitudeLimit?: number;
   showLines?: boolean;
+  /** Render all 88 IAU constellation line sets instead of only the target constellation */
+  showAllConstellationLines?: boolean;
   /** Official IAU boundary of the target constellation */
   showBoundary?: boolean;
   /** J2000 equatorial coordinate grid */
@@ -186,6 +189,7 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     view,
     magnitudeLimit = 6.5,
     showLines = false,
+    showAllConstellationLines = false,
     showBoundary = false,
     showGrid = false,
     labelMode = "none",
@@ -512,33 +516,41 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     // CONSTELLATION STICK FIGURE
     // ----------------------------------------------------------
 
-    if (showLines && target) {
-      ctx.lineWidth = 1.25;
+    if (showLines) {
+      const lineTargets = showAllConstellationLines
+        ? constellations
+        : target
+          ? [target]
+          : [];
 
-      ctx.strokeStyle = "rgba(122,196,255,0.62)";
+      if (lineTargets.length > 0) {
+        ctx.lineWidth = 1.25;
 
-      ctx.lineCap = "round";
+        ctx.strokeStyle = "rgba(122,196,255,0.62)";
 
-      ctx.beginPath();
+        ctx.lineCap = "round";
 
-      for (const [a, b] of target.lineData) {
-        const sa = starById.get(a);
-        const sb = starById.get(b);
+        ctx.beginPath();
 
-        if (!sa || !sb) continue;
+        for (const current of lineTargets) {
+          for (const [a, b] of current.lineData) {
+            const sa = starById.get(a);
+            const sb = starById.get(b);
 
-        const pa = positions.get(a) ?? proj.project(sa.ra, sa.dec);
+            if (!sa || !sb) continue;
 
-        const pb = positions.get(b) ?? proj.project(sb.ra, sb.dec);
+            const pa = positions.get(a) ?? proj.project(sa.ra, sa.dec);
+            const pb = positions.get(b) ?? proj.project(sb.ra, sb.dec);
 
-        if (!pa || !pb) continue;
+            if (!pa || !pb) continue;
 
-        ctx.moveTo(pa.x, pa.y);
+            ctx.moveTo(pa.x, pa.y);
+            ctx.lineTo(pb.x, pb.y);
+          }
+        }
 
-        ctx.lineTo(pb.x, pb.y);
+        ctx.stroke();
       }
-
-      ctx.stroke();
     }
 
     for (const marker of markers) {

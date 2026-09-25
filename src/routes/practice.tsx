@@ -280,7 +280,7 @@ function PracticePage() {
         )
       : null;
 
-    const attemptNumber = isThreeAttemptQuestion ? starAttempts + 1 : 1;
+    const attemptNumber = isThreeAttemptQuestion ? Math.min(starAttempts + 1, 3) : 1;
     const correct = isLocateQuestion
       ? separation !== null && separation <= STAR_LOCATION_TOLERANCE_DEG
       : matchesStarAnswer(starQuestion.star, starInput, starPracticeType);
@@ -547,6 +547,7 @@ function PracticePage() {
               view={starQuestion.view}
               magnitudeLimit={starDifficulty === "beginner" ? 5.8 : 6.4}
               defaultLines={starLinesVisible || reveal}
+              showAllConstellationLines={starLinesVisible || reveal}
               defaultLabels={false}
               defaultBoundary={false}
               defaultGrid={false}
@@ -706,7 +707,7 @@ function PracticePage() {
                   onClick={() => {
                     setStarHintPromptOpen(false);
                     setStarLinesVisible(true);
-                    setStarAttempts((current) => current + 1);
+                    setStarAttempts(3);
                   }}
                 >
                   YES
@@ -716,7 +717,7 @@ function PracticePage() {
                   onClick={() => {
                     setStarHintPromptOpen(false);
                     setStarLinesVisible(false);
-                    setStarAttempts((current) => current + 1);
+                    setStarAttempts(3);
                   }}
                 >
                   NO

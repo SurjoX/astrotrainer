@@ -4,6 +4,7 @@ import { Check, Clock, X } from "lucide-react";
 import { SkyViewer } from "@/components/sky/SkyViewer";
 import { ConstellationFacts } from "@/components/app/ConstellationFacts";
 import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useProgress } from "@/hooks/useProgress";
@@ -584,6 +585,14 @@ function PracticePage() {
                   <Button disabled={!starSelection} onClick={submitStar}>
                     Submit location
                   </Button>
+                  {starAttempts === 1 && starDifficulty !== "advanced" && (
+                    <Alert
+                      variant="destructive"
+                      className="border-destructive/40 bg-destructive/10 text-destructive"
+                    >
+                      Try again
+                    </Alert>
+                  )}
                   <p className="text-xs text-muted-foreground">
                     Click the map to place a marker, then submit. The target is not revealed until
                     after your answer.
@@ -616,7 +625,12 @@ function PracticePage() {
                     Check answer
                   </Button>
                   {starAttempts === 1 && starDifficulty !== "advanced" && (
-                    <p className="mt-3 text-sm text-muted-foreground">Try again</p>
+                    <Alert
+                      variant="destructive"
+                      className="mt-3 border-destructive/40 bg-destructive/10 text-destructive"
+                    >
+                      Try again
+                    </Alert>
                   )}
                 </form>
               )}

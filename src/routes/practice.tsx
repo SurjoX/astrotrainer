@@ -123,6 +123,10 @@ function PracticePage() {
   const startedAt = useRef(0);
 
   const [starPracticeType, setStarPracticeType] = useState<StarPracticeNameType>("common");
+  const [starPracticeMethod, setStarPracticeMethod] = useState<"identify" | "locate">("identify");
+  const [starDifficultyChoice, setStarDifficultyChoice] = useState<"easy" | "hard" | "advanced">(
+    "easy",
+  );
   const [starDifficulty, setStarDifficulty] = useState<Difficulty>("beginner");
   const [starQuestion, setStarQuestion] = useState<StarPracticeQuestion | null>(null);
   const [starAnswered, setStarAnswered] = useState<StarAnswered | null>(null);
@@ -131,6 +135,9 @@ function PracticePage() {
   const [starStartedAt, setStarStartedAt] = useState(0);
   const [starQueue, setStarQueue] = useState<string[]>([]);
   const [starQueueIndex, setStarQueueIndex] = useState(0);
+  const [starAttempts, setStarAttempts] = useState(0);
+  const [starHintPromptOpen, setStarHintPromptOpen] = useState(false);
+  const [starLinesVisible, setStarLinesVisible] = useState(false);
 
   useEffect(() => {
     if (!starSelected) {
@@ -141,6 +148,9 @@ function PracticePage() {
       setStarStartedAt(0);
       setStarQueue([]);
       setStarQueueIndex(0);
+      setStarAttempts(0);
+      setStarHintPromptOpen(false);
+      setStarLinesVisible(false);
       return;
     }
 
@@ -151,6 +161,9 @@ function PracticePage() {
     setStarStartedAt(0);
     setStarQueue([]);
     setStarQueueIndex(0);
+    setStarAttempts(0);
+    setStarHintPromptOpen(false);
+    setStarLinesVisible(false);
   }, [starSelected]);
 
   const weak = useMemo(() => weakConstellations(progress, 8), [progress]);
@@ -207,7 +220,18 @@ function PracticePage() {
     [answered, question, difficulty],
   );
 
+  const selectStarDifficulty = useCallback((nextChoice: "easy" | "hard" | "advanced") => {
+    setStarDifficultyChoice(nextChoice);
+    setStarDifficulty(
+      nextChoice === "easy" ? "beginner" : nextChoice === "hard" ? "intermediate" : "advanced",
+    );
+  }, []);
+
   const nextStarQuestion = useCallback(() => {
+    setStarAttempts(0);
+    setStarHintPromptOpen(false);
+    setStarLinesVisible(false);
+
     const nextIndex = starQueueIndex + 1;
     let nextQueue = starQueue;
     let index = nextIndex;
@@ -226,6 +250,10 @@ function PracticePage() {
   }, [starDifficulty, starPracticeType, starQueue, starQueueIndex]);
 
   const startStarPractice = useCallback(() => {
+    setStarAttempts(0);
+    setStarHintPromptOpen(false);
+    setStarLinesVisible(false);
+
     const queue = shuffleStarPracticePool(starPracticeType, starDifficulty).map((star) => star.id);
     setStarQueue(queue);
     setStarQueueIndex(0);
@@ -239,6 +267,9 @@ function PracticePage() {
 
   const submitStar = useCallback(() => {
     if (!starQuestion || starAnswered) return;
+
+    const isLocateQuestion = starPracticeMethod === "locate";
+    const isThreeAttemptQuestion = starDifficulty !== "advanced";
     const elapsedMs = Date.now() - starStartedAt;
     const separation = starSelection
       ? angularSeparation(
@@ -249,33 +280,48 @@ function PracticePage() {
         )
       : null;
 
-    const correct =
-      starDifficulty === "advanced"
-        ? separation !== null && separation <= STAR_LOCATION_TOLERANCE_DEG
-        : matchesStarAnswer(starQuestion.star, starInput, starPracticeType);
+    const attemptNumber = isThreeAttemptQuestion ? starAttempts + 1 : 1;
+    const correct = isLocateQuestion
+      ? separation !== null && separation <= STAR_LOCATION_TOLERANCE_DEG
+      : matchesStarAnswer(starQuestion.star, starInput, starPracticeType);
 
-    const points = Math.max(1, Math.round(100 - Math.min(95, (separation ?? 8.5) * 8)));
-    recordStarAnswer({
-      starId: starQuestion.star.id,
-      correct,
-      elapsedMs,
-      difficulty: starDifficulty,
-      angularErrorDeg: separation,
-    });
+    if (correct || (isThreeAttemptQuestion && attemptNumber >= 3)) {
+      const points = Math.max(1, Math.round(100 - Math.min(95, (separation ?? 8.5) * 8)));
+      recordStarAnswer({
+        starId: starQuestion.star.id,
+        correct,
+        elapsedMs,
+        difficulty: starDifficulty,
+        angularErrorDeg: separation,
+      });
 
-    setStarAnswered({
-      question: starQuestion,
-      input: starInput,
-      selected: starSelection,
-      separation,
-      correct,
-      elapsedMs,
-      points,
-    });
+      setStarAnswered({
+        question: starQuestion,
+        input: starInput,
+        selected: starSelection,
+        separation,
+        correct,
+        elapsedMs,
+        points,
+      });
+      setStarAttempts(attemptNumber);
+      setStarHintPromptOpen(false);
+      setStarLinesVisible(true);
+      return;
+    }
+
+    if (isThreeAttemptQuestion) {
+      setStarAttempts(attemptNumber);
+      if (attemptNumber === 2) {
+        setStarHintPromptOpen(true);
+      }
+    }
   }, [
     starAnswered,
+    starAttempts,
     starDifficulty,
     starInput,
+    starPracticeMethod,
     starPracticeType,
     starQuestion,
     starSelection,
@@ -320,6 +366,11 @@ function PracticePage() {
 
   if (starSelected) {
     if (!starQuestion) {
+      const difficultyOptions =
+        starPracticeMethod === "identify"
+          ? (["easy", "hard"] as const)
+          : (["easy", "hard", "advanced"] as const);
+
       return (
         <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
           <Button
@@ -330,7 +381,7 @@ function PracticePage() {
           >
             <Link to="/practice">Back to practice hub</Link>
           </Button>
-          <h1 className="font-display text-3xl font-bold">Star practice</h1>
+          <h1 className="font-display text-3xl font-bold">Star Practice</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Learn the bright stars by name, Bayer designation, and position on the real sky.
           </p>
@@ -366,28 +417,61 @@ function PracticePage() {
           </section>
 
           <section className="mt-6">
-            <h2 className="label-caps">Difficulty</h2>
-            <div className="mt-2 grid gap-2 sm:grid-cols-3">
-              {(["beginner", "intermediate", "advanced"] as Difficulty[]).map((d) => (
+            <h2 className="label-caps">Choose Practice Type</h2>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {([
+                ["identify", "Identify Stars"],
+                ["locate", "Locate Star on Star Map"],
+              ] as const).map(([method, label]) => (
                 <button
-                  key={d}
-                  onClick={() => setStarDifficulty(d)}
+                  key={method}
+                  onClick={() => {
+                    setStarPracticeMethod(method);
+                    if (method === "identify") {
+                      selectStarDifficulty(starDifficultyChoice === "advanced" ? "easy" : starDifficultyChoice);
+                    }
+                  }}
                   className={cn(
                     "panel p-4 text-left transition-colors",
-                    starDifficulty === d
+                    starPracticeMethod === method
+                      ? "border-primary/60 bg-primary/10"
+                      : "hover:bg-secondary/50",
+                  )}
+                >
+                  <span className="font-display text-base font-semibold">{label}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {method === "identify"
+                      ? "Type the star's name from the highlighted sky." 
+                      : "Find the target star on the wide sky map."}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-6">
+            <h2 className="label-caps">{starPracticeMethod === "identify" ? "Difficulty" : "Difficulty"}</h2>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              {difficultyOptions.map((choice) => (
+                <button
+                  key={choice}
+                  onClick={() => selectStarDifficulty(choice)}
+                  className={cn(
+                    "panel p-4 text-left transition-colors",
+                    starDifficultyChoice === choice
                       ? "border-primary/60 bg-primary/10"
                       : "hover:bg-secondary/50",
                   )}
                 >
                   <span className="font-display text-base font-semibold">
-                    {d.charAt(0).toUpperCase() + d.slice(1)}
+                    {choice === "advanced" ? "Advanced" : choice.charAt(0).toUpperCase() + choice.slice(1)}
                   </span>
                   <span className="mt-0.5 block text-xs text-muted-foreground">
-                    {d === "beginner"
-                      ? "Target is visible with constellation lines."
-                      : d === "intermediate"
-                        ? "Type the star name from a wide randomized sky."
-                        : "Pan and zoom to locate the hidden target."}
+                    {choice === "easy"
+                      ? "Focus on the authoritative easy-star pool."
+                      : choice === "hard"
+                        ? "Use the remaining catalog stars in the session pool."
+                        : "Pan and zoom to locate the hidden target with the full catalog."}
                   </span>
                 </button>
               ))}
@@ -419,38 +503,39 @@ function PracticePage() {
     const targetConstellation = getStarConstellation(starQuestion.star) ?? null;
     const modeConfig = getStarPracticeModeConfig(starDifficulty);
     const modePrompt = getStarPracticeName(starQuestion.star, starPracticeType);
-    const markerList =
-      starDifficulty === "advanced"
-        ? [
-            ...(starSelection && !reveal
-              ? [
-                  {
-                    ra: starSelection.ra,
-                    dec: starSelection.dec,
-                    color: "#f7c66a",
-                    label: "Your selection",
-                  },
-                ]
-              : []),
-            ...(reveal
-              ? [
-                  {
-                    ra: starQuestion.star.ra,
-                    dec: starQuestion.star.dec,
-                    color: "#7ac4ff",
-                    label: modePrompt,
-                  },
-                ]
-              : []),
-          ]
-        : [
-            {
-              ra: starQuestion.star.ra,
-              dec: starQuestion.star.dec,
-              color: "#7ac4ff",
-              ...(reveal ? { label: modePrompt } : {}),
-            },
-          ];
+    const isLocateMode = starPracticeMethod === "locate";
+    const isAdvancedLocate = starDifficulty === "advanced";
+    const markerList = isLocateMode
+      ? [
+          ...(starSelection && !reveal
+            ? [
+                {
+                  ra: starSelection.ra,
+                  dec: starSelection.dec,
+                  color: "#f7c66a",
+                  label: "Your selection",
+                },
+              ]
+            : []),
+          ...(reveal
+            ? [
+                {
+                  ra: starQuestion.star.ra,
+                  dec: starQuestion.star.dec,
+                  color: "#7ac4ff",
+                  label: modePrompt,
+                },
+              ]
+            : []),
+        ]
+      : [
+          {
+            ra: starQuestion.star.ra,
+            dec: starQuestion.star.dec,
+            color: "#7ac4ff",
+            ...(reveal ? { label: modePrompt } : {}),
+          },
+        ];
 
     return (
       <main className="mx-auto grid min-w-0 max-w-7xl gap-4 px-3 py-4 sm:px-6 sm:py-6 lg:grid-cols-[1.35fr_1fr]">
@@ -461,12 +546,12 @@ function PracticePage() {
               constellation={targetConstellation}
               view={starQuestion.view}
               magnitudeLimit={starDifficulty === "beginner" ? 5.8 : 6.4}
-              defaultLines={starDifficulty === "beginner" || reveal}
+              defaultLines={starLinesVisible || reveal}
               defaultLabels={false}
               defaultBoundary={false}
               defaultGrid={false}
               lockToggles={!reveal}
-              {...(starDifficulty === "advanced" && !reveal
+              {...((isLocateMode || isAdvancedLocate) && !reveal
                 ? {
                     onSkyClick: (position: { ra: number; dec: number }) =>
                       setStarSelection(position),
@@ -475,7 +560,7 @@ function PracticePage() {
               markers={markerList}
               className="h-full"
             />
-            {!reveal && starDifficulty === "advanced" && starSelection && (
+            {!reveal && isLocateMode && starSelection && (
               <div className="absolute left-3 top-3 rounded-md border border-primary/50 bg-background/80 px-3 py-2 text-xs backdrop-blur">
                 Selection ready — submit when you are confident.
               </div>
@@ -485,15 +570,15 @@ function PracticePage() {
 
         <aside className="panel min-w-0 p-4">
           <p className="label-caps">
-            {starDifficulty.charAt(0).toUpperCase() + starDifficulty.slice(1)}
+            {starDifficultyChoice === "advanced" ? "Advanced" : starDifficultyChoice.charAt(0).toUpperCase() + starDifficultyChoice.slice(1)}
           </p>
           <h1 className="mt-1 font-display text-2xl font-bold">
-            {starDifficulty === "advanced" ? `Locate ${modePrompt}` : "Identify this star"}
+            {isLocateMode ? `Locate ${modePrompt}` : "Identify this star"}
           </h1>
 
           {!reveal ? (
             <>
-              {starDifficulty === "advanced" ? (
+              {isLocateMode ? (
                 <div className="mt-5 flex flex-col gap-3">
                   <Button disabled={!starSelection} onClick={submitStar}>
                     Submit location
@@ -610,6 +695,34 @@ function PracticePage() {
                 )}
               </div>
             </section>
+          )}
+
+          {starHintPromptOpen && !reveal && !isAdvancedLocate && (
+            <div className="mt-4 rounded-md border border-border bg-background/80 p-4">
+              <p className="font-medium">Need constellation lines?</p>
+              <div className="mt-3 flex gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setStarHintPromptOpen(false);
+                    setStarLinesVisible(true);
+                    setStarAttempts((current) => current + 1);
+                  }}
+                >
+                  YES
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setStarHintPromptOpen(false);
+                    setStarLinesVisible(false);
+                    setStarAttempts((current) => current + 1);
+                  }}
+                >
+                  NO
+                </Button>
+              </div>
+            </div>
           )}
         </aside>
       </main>

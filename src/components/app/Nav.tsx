@@ -6,6 +6,7 @@ const links = [
   { to: "/constellations", label: "Constellations" },
   { to: "/asterisms", label: "Asterisms" },
   { to: "/messier", label: "Messier" },
+  { to: "/sky-map", label: "Sky Map" },
   { to: "/progress", label: "Progress" },
 ] as const;
 

@@ -6,20 +6,23 @@ This directory should contain official IAU constellation images for the "Officia
 
 Each constellation should have a corresponding image file named `{constellation-id}.jpg`, for example:
 
-- `ori.jpg` (Orion)
-- `leo.jpg` (Leo)
-- `her.jpg` (Hercules)
+Each constellation has a corresponding delivery image named `{constellation-id}_processed.webp`, for example:
+- `ori_processed.webp` (Orion)
+- `leo_processed.webp` (Leo)
+- `her_processed.webp` (Hercules)
 - etc.
 
 Image specifications:
-
+- Format: WebP (generated from the processed source artwork)
 - Format: JPG (approximately 1000x1000px minimum)
 - Aspect ratio: Square or landscape
 - Content: Official IAU constellation illustration
 - Naming: Use the constellation ID from the IAU catalog (e.g., "ori", "and", "cen")
+The 88 optimized WebP delivery images are stored in `processed/` and are served as static assets from `/iau-constellations/processed/`. The practice mode derives the URL from the existing `src/data/constellations.json` IDs, so it does not maintain a second constellation mapping. Serpens uses a composite of the official Caput and Cauda charts because the IAU publishes that constellation as two charts.
 
-## Sourcing Images
-
+- Images are loaded from `/iau-constellations/processed/{id}_processed.webp`
+The current image is preloaded at high priority and the next generated IAU question is preloaded in the background
+The application gracefully handles missing images with a helpful error message
 ### Official IAU Constellations
 
 The 88 official IAU constellations are maintained by the International Astronomical Union. Official illustrations are available from several sources:

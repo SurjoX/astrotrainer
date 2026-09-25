@@ -32,6 +32,7 @@ import {
   weakConstellations,
 } from "@/lib/progress";
 import { recordStarAnswer, starAccuracy } from "@/lib/starProgress";
+import { getIauImageUrl, preloadIauImage } from "@/lib/iauImages";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/practice")({
@@ -122,6 +123,8 @@ function PracticePage() {
   const [remaining, setRemaining] = useState(TIME_LIMIT_MS);
   const [textInput, setTextInput] = useState("");
   const startedAt = useRef(0);
+  const pendingIauQuestion = useRef<Question | null>(null);
+  const [iauImageState, setIauImageState] = useState<"loading" | "ready" | "error">("loading");
 
   const [starPracticeType, setStarPracticeType] = useState<StarPracticeNameType>("common");
   const [starPracticeMethod, setStarPracticeMethod] = useState<"identify" | "locate">("identify");
@@ -181,13 +184,40 @@ function PracticePage() {
     setRemaining(TIME_LIMIT_MS);
     startedAt.current = Date.now();
     if (mode === "iau-images") {
-      setQuestion(
-        generateQuestion(QuestionType.IDENTIFY_CONSTELLATION_FROM_IMAGE, difficulty, pool),
+      const next =
+        pendingIauQuestion.current ??
+        generateQuestion(QuestionType.IDENTIFY_CONSTELLATION_FROM_IMAGE, difficulty, pool);
+      pendingIauQuestion.current = generateQuestion(
+        QuestionType.IDENTIFY_CONSTELLATION_FROM_IMAGE,
+        difficulty,
+        pool,
       );
+      setQuestion(next);
     } else {
+      pendingIauQuestion.current = null;
       setQuestion(generateQuestion(QuestionType.IDENTIFY_CONSTELLATION, difficulty, pool));
     }
   }, [difficulty, pool, mode]);
+
+  const iauImageUrl =
+    mode === "iau-images" && question ? getIauImageUrl(question.correctAnswer) : null;
+
+  useEffect(() => {
+    if (!iauImageUrl) return;
+
+    let active = true;
+    setIauImageState("loading");
+    void preloadIauImage(iauImageUrl).then((loaded) => {
+      if (active) setIauImageState(loaded ? "ready" : "error");
+    });
+
+    const next = pendingIauQuestion.current;
+    if (next) void preloadIauImage(getIauImageUrl(next.correctAnswer));
+
+    return () => {
+      active = false;
+    };
+  }, [iauImageUrl]);
 
   const submit = useCallback(
     (choiceId: string | null, userInput?: string) => {
@@ -420,16 +450,20 @@ function PracticePage() {
           <section className="mt-6">
             <h2 className="label-caps">Choose Practice Type</h2>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {([
-                ["identify", "Identify Stars"],
-                ["locate", "Locate Star on Star Map"],
-              ] as const).map(([method, label]) => (
+              {(
+                [
+                  ["identify", "Identify Stars"],
+                  ["locate", "Locate Star on Star Map"],
+                ] as const
+              ).map(([method, label]) => (
                 <button
                   key={method}
                   onClick={() => {
                     setStarPracticeMethod(method);
                     if (method === "identify") {
-                      selectStarDifficulty(starDifficultyChoice === "advanced" ? "easy" : starDifficultyChoice);
+                      selectStarDifficulty(
+                        starDifficultyChoice === "advanced" ? "easy" : starDifficultyChoice,
+                      );
                     }
                   }}
                   className={cn(
@@ -442,7 +476,7 @@ function PracticePage() {
                   <span className="font-display text-base font-semibold">{label}</span>
                   <span className="mt-0.5 block text-xs text-muted-foreground">
                     {method === "identify"
-                      ? "Type the star's name from the highlighted sky." 
+                      ? "Type the star's name from the highlighted sky."
                       : "Find the target star on the wide sky map."}
                   </span>
                 </button>
@@ -451,7 +485,9 @@ function PracticePage() {
           </section>
 
           <section className="mt-6">
-            <h2 className="label-caps">{starPracticeMethod === "identify" ? "Difficulty" : "Difficulty"}</h2>
+            <h2 className="label-caps">
+              {starPracticeMethod === "identify" ? "Difficulty" : "Difficulty"}
+            </h2>
             <div className="mt-2 grid gap-2 sm:grid-cols-3">
               {difficultyOptions.map((choice) => (
                 <button
@@ -465,7 +501,9 @@ function PracticePage() {
                   )}
                 >
                   <span className="font-display text-base font-semibold">
-                    {choice === "advanced" ? "Advanced" : choice.charAt(0).toUpperCase() + choice.slice(1)}
+                    {choice === "advanced"
+                      ? "Advanced"
+                      : choice.charAt(0).toUpperCase() + choice.slice(1)}
                   </span>
                   <span className="mt-0.5 block text-xs text-muted-foreground">
                     {choice === "easy"
@@ -572,7 +610,9 @@ function PracticePage() {
 
         <aside className="panel min-w-0 p-4">
           <p className="label-caps">
-            {starDifficultyChoice === "advanced" ? "Advanced" : starDifficultyChoice.charAt(0).toUpperCase() + starDifficultyChoice.slice(1)}
+            {starDifficultyChoice === "advanced"
+              ? "Advanced"
+              : starDifficultyChoice.charAt(0).toUpperCase() + starDifficultyChoice.slice(1)}
           </p>
           <h1 className="mt-1 font-display text-2xl font-bold">
             {isLocateMode ? `Locate ${modePrompt}` : "Identify this star"}
@@ -933,40 +973,27 @@ function PracticePage() {
           <div className="flex items-center justify-center h-[46vh] min-h-[300px] lg:h-[calc(100vh-8rem)] bg-gradient-to-br from-slate-900 to-slate-800 p-4">
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-4">Official IAU Constellation</p>
-              {revealed ? (
+              {iauImageState === "ready" ? (
                 <img
-                  src={`/iau-constellations/processed/${question.correctAnswer}_processed.jpg`}
-                  alt={target.name}
+                  src={iauImageUrl ?? undefined}
+                  alt={revealed ? target.name : "Constellation image"}
                   className="max-w-full max-h-[60vh] mx-auto object-contain rounded"
-                  onError={(e) => {
-                    const img = e.currentTarget;
-                    img.style.display = "none";
-                    const fallback = img.nextElementSibling as HTMLDivElement;
-                    if (fallback) fallback.style.display = "block";
-                  }}
+                  loading="eager"
+                  fetchPriority="high"
                 />
+              ) : iauImageState === "loading" ? (
+                <div
+                  role="status"
+                  className="text-muted-foreground text-sm p-8 bg-slate-800 rounded"
+                >
+                  Loading constellation image...
+                </div>
               ) : (
-                <img
-                  src={`/iau-constellations/processed/${question.correctAnswer}_processed.jpg`}
-                  alt="Constellation image"
-                  className="max-w-full max-h-[60vh] mx-auto object-contain rounded"
-                  onError={(e) => {
-                    const img = e.currentTarget;
-                    img.style.display = "none";
-                    const fallback = img.nextElementSibling as HTMLDivElement;
-                    if (fallback) fallback.style.display = "block";
-                  }}
-                />
+                <div className="text-muted-foreground text-sm p-8 bg-slate-800 rounded">
+                  <p>IAU constellation image not found.</p>
+                  <p className="text-xs mt-2">Expected: {iauImageUrl}</p>
+                </div>
               )}
-              <div
-                style={{ display: "none" }}
-                className="text-muted-foreground text-sm p-8 bg-slate-800 rounded"
-              >
-                <p>IAU constellation image not found.</p>
-                <p className="text-xs mt-2">
-                  Expected: /iau-constellations/processed/{question.correctAnswer}_processed.jpg
-                </p>
-              </div>
             </div>
           </div>
         ) : (

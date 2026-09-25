@@ -17,6 +17,10 @@ interface SkyViewerProps {
   defaultLabels?: boolean;
   defaultBoundary?: boolean;
   defaultGrid?: boolean;
+  defaultEcliptic?: boolean;
+  defaultCelestialEquator?: boolean;
+  showAllConstellationBoundaries?: boolean;
+  labelsMode?: "star" | "constellation";
   emphasizeTarget?: boolean;
   lockToggles?: boolean;
   className?: string;
@@ -43,6 +47,10 @@ export function SkyViewer({
   defaultLabels = true,
   defaultBoundary = false,
   defaultGrid = false,
+  defaultEcliptic = false,
+  defaultCelestialEquator = false,
+  showAllConstellationBoundaries = false,
+  labelsMode = "star",
   emphasizeTarget = false,
   lockToggles = false,
   className,
@@ -58,11 +66,18 @@ export function SkyViewer({
   const [labels, setLabels] = useState(defaultLabels);
   const [boundary, setBoundary] = useState(defaultBoundary);
   const [grid, setGrid] = useState(defaultGrid);
+  const [ecliptic, setEcliptic] = useState(defaultEcliptic);
+  const [celestialEquator, setCelestialEquator] = useState(defaultCelestialEquator);
 
   useEffect(() => setLines(defaultLines), [defaultLines]);
   useEffect(() => setLabels(defaultLabels), [defaultLabels]);
   useEffect(() => setBoundary(defaultBoundary), [defaultBoundary]);
   useEffect(() => setGrid(defaultGrid), [defaultGrid]);
+  useEffect(() => setEcliptic(defaultEcliptic), [defaultEcliptic]);
+  useEffect(() => setCelestialEquator(defaultCelestialEquator), [defaultCelestialEquator]);
+
+  const starLabelsOn = labelsMode !== "constellation" && labels;
+  const constellationLabelsOn = labelsMode === "constellation" && labels;
 
   const baseView = useMemo<ViewState>(() => {
     if (view) return view;
@@ -80,10 +95,14 @@ export function SkyViewer({
         showLines={lines}
         showAllConstellationLines={showAllConstellationLines}
         showBoundary={boundary}
+        showAllConstellationBoundaries={showAllConstellationBoundaries}
         showGrid={grid}
-        labelMode={labels ? labelModeWhenOn : "none"}
+        showConstellationLabels={constellationLabelsOn}
+        showEcliptic={ecliptic}
+        showCelestialEquator={celestialEquator}
+        labelMode={starLabelsOn ? labelModeWhenOn : "none"}
         boundaryIds={boundaryIds}
-        labelStars={labels ? labelStars : undefined}
+        labelStars={starLabelsOn ? labelStars : undefined}
         emphasizeTarget={emphasizeTarget}
         onSkyClick={onSkyClick}
         markers={markers}
@@ -168,6 +187,30 @@ export function SkyViewer({
               aria-pressed={grid}
             >
               <Grid3x3 className="size-3.5" /> Grid
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-8 gap-1.5 px-2 text-xs",
+                ecliptic ? "text-red-400" : "text-muted-foreground",
+              )}
+              onClick={() => setEcliptic((v) => !v)}
+              aria-pressed={ecliptic}
+            >
+              Ecliptic
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-8 gap-1.5 px-2 text-xs",
+                celestialEquator ? "text-emerald-400" : "text-muted-foreground",
+              )}
+              onClick={() => setCelestialEquator((v) => !v)}
+              aria-pressed={celestialEquator}
+            >
+              Celestial Equator
             </Button>
           </div>
         )}

@@ -39,8 +39,16 @@ export interface StarMapProps {
   showAllConstellationLines?: boolean;
   /** Official IAU boundary of the target constellation */
   showBoundary?: boolean;
+  /** Render all 88 IAU constellation boundaries instead of only the target constellation */
+  showAllConstellationBoundaries?: boolean;
   /** J2000 equatorial coordinate grid */
   showGrid?: boolean;
+  /** Constellation names for the currently visible sky region */
+  showConstellationLabels?: boolean;
+  /** Ecliptic path */
+  showEcliptic?: boolean;
+  /** Celestial equator */
+  showCelestialEquator?: boolean;
   labelMode?: LabelMode;
   /**
    * Constellation ids whose official IAU boundary should be drawn instead of the
@@ -191,7 +199,11 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     showLines = false,
     showAllConstellationLines = false,
     showBoundary = false,
+    showAllConstellationBoundaries = false,
     showGrid = false,
+    showConstellationLabels = false,
+    showEcliptic = false,
+    showCelestialEquator = false,
     labelMode = "none",
     boundaryIds,
     labelStars: labelStarsProp,
@@ -439,7 +451,12 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     // IAU BOUNDARY
     // ----------------------------------------------------------
 
-    const boundaryTargets = boundaryIds ?? (target ? [target.id] : []);
+    const boundaryTargets = boundaryIds ??
+      (showAllConstellationBoundaries
+        ? constellations.map((c) => c.id)
+        : target
+          ? [target.id]
+          : []);
 
     if (showBoundary && boundaryTargets.length > 0) {
       ctx.lineWidth = 1.1;
@@ -517,11 +534,7 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     // ----------------------------------------------------------
 
     if (showLines) {
-      const lineTargets = showAllConstellationLines
-        ? constellations
-        : target
-          ? [target]
-          : [];
+      const lineTargets = showAllConstellationLines ? constellations : target ? [target] : [];
 
       if (lineTargets.length > 0) {
         ctx.lineWidth = 1.25;
@@ -575,6 +588,44 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
         ctx.fillText(marker.label, p.x + 12, p.y - 10);
       }
       ctx.restore();
+    }
+
+    // ----------------------------------------------------------
+    // ASTRONOMICAL OVERLAYS
+    // ----------------------------------------------------------
+
+    if (showEcliptic) {
+      const path: [number, number][] = [];
+      const eps = (23.43928 * Math.PI) / 180;
+
+      for (let lambda = 0; lambda <= 360; lambda += 5) {
+        const l = (lambda * Math.PI) / 180;
+        const x = Math.cos(l);
+        const y = Math.sin(l) * Math.cos(eps);
+        const z = Math.sin(l) * Math.sin(eps);
+
+        const ra = (Math.atan2(y, x) * 180) / Math.PI;
+        const dec = (Math.atan2(z, Math.hypot(x, y)) * 180) / Math.PI;
+        path.push([((ra % 360) + 360) % 360, dec]);
+      }
+
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = "rgba(255, 86, 86, 0.96)";
+      ctx.setLineDash([]);
+      strokePath(path, false);
+    }
+
+    if (showCelestialEquator) {
+      const path: [number, number][] = [];
+
+      for (let ra = 0; ra <= 360; ra += 5) {
+        path.push([ra, 0]);
+      }
+
+      ctx.lineWidth = 1.35;
+      ctx.strokeStyle = "rgba(60, 255, 110, 0.96)";
+      ctx.setLineDash([]);
+      strokePath(path, false);
     }
 
     // ----------------------------------------------------------
@@ -680,6 +731,38 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
       }
     }
 
+    if (showConstellationLabels) {
+      ctx.font = "600 11px ui-sans-serif, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "rgba(215,228,255,0.88)";
+
+      const taken: { x: number; y: number; w: number; h: number }[] = [];
+
+      for (const current of constellations) {
+        const p = proj.project(current.centerRa, current.centerDec);
+        if (!p) continue;
+        if (p.x < 18 || p.y < 18 || p.x > size.w - 18 || p.y > size.h - 18) continue;
+
+        const text = current.name.toUpperCase();
+        const w = ctx.measureText(text).width;
+        const box = { x: p.x - w / 2 - 6, y: p.y - 9, w: w + 12, h: 18 };
+
+        const clash = taken.some(
+          (t) =>
+            box.x < t.x + t.w && box.x + box.w > t.x && box.y < t.y + t.h && box.y + box.h > t.y,
+        );
+
+        if (clash) continue;
+
+        taken.push(box);
+        ctx.fillText(text, p.x, p.y);
+      }
+
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+    }
+
     // ----------------------------------------------------------
     // COMPASS
     // ----------------------------------------------------------
@@ -757,9 +840,13 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     size,
     showLines,
     showBoundary,
+    showAllConstellationBoundaries,
     boundaryIds,
     labelStarsProp,
     showGrid,
+    showConstellationLabels,
+    showEcliptic,
+    showCelestialEquator,
     labelMode,
     target,
     emphasizeTarget,

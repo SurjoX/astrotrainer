@@ -294,7 +294,9 @@ function normalizeStarIdentityKey(value: string): string {
     .trim();
 }
 
-function classifyStarDifficulty(entry: Pick<StarPracticeEntry, "name" | "bayer" | "constellation" | "aliases">): "easy" | "hard" {
+function classifyStarDifficulty(
+  entry: Pick<StarPracticeEntry, "name" | "bayer" | "constellation" | "aliases">,
+): "easy" | "hard" {
   const keys = new Set<string>();
   if (entry.name) keys.add(normalizeStarIdentityKey(entry.name));
   if (entry.bayer && entry.constellation) {

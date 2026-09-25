@@ -615,6 +615,9 @@ function PracticePage() {
                   <Button type="submit" disabled={!starInput.trim()} className="mt-3">
                     Check answer
                   </Button>
+                  {starAttempts === 1 && starDifficulty !== "advanced" && (
+                    <p className="mt-3 text-sm text-muted-foreground">Try again</p>
+                  )}
                 </form>
               )}
             </>

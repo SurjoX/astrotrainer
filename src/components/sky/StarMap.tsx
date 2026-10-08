@@ -451,7 +451,8 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     // IAU BOUNDARY
     // ----------------------------------------------------------
 
-    const boundaryTargets = boundaryIds ??
+    const boundaryTargets =
+      boundaryIds ??
       (showAllConstellationBoundaries
         ? constellations.map((c) => c.id)
         : target
@@ -845,6 +846,7 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     labelStarsProp,
     showGrid,
     showConstellationLabels,
+    showAllConstellationLines,
     showEcliptic,
     showCelestialEquator,
     labelMode,

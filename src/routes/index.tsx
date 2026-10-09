@@ -46,124 +46,154 @@ function Index() {
     },
   ];
 
+  const featureCards = [
+    {
+      title: "Constellations",
+      blurb:
+        "Identify the official IAU shapes and compare your recognition against a real J2000 star field.",
+      primary: "/constellations",
+      primaryLabel: "Browse atlas",
+      secondary: "/practice?category=constellations",
+      secondaryLabel: "Practice now",
+    },
+    {
+      title: "Asterisms",
+      blurb:
+        "Train navigational patterns and seasonal groupings that sit outside the formal constellation list.",
+      primary: "/asterisms",
+      primaryLabel: "Explore patterns",
+      secondary: "/asterisms/practice",
+      secondaryLabel: "Practice asterisms",
+    },
+    {
+      title: "Messier",
+      blurb:
+        "Move from star recognition to deep-sky ID with real object metadata and focused practice sessions.",
+      primary: "/messier",
+      primaryLabel: "Browse catalog",
+      secondary: "/messier/practice",
+      secondaryLabel: "Practice Messier",
+    },
+    {
+      title: "Sky Map",
+      blurb:
+        "Pan across the full sky, toggle overlays, and inspect the coordinate system without disrupting the map.",
+      primary: "/sky-map",
+      primaryLabel: "Open atlas",
+      secondary: "/practice",
+      secondaryLabel: "Start training",
+    },
+  ];
+
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
-      <section className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:py-16">
+      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <div>
-          <p className="label-caps">Astronomy Observation Training</p>
-          <h1 className="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl">
-            ASTROTRAINER
+          <p className="label-caps">Astronomy observation training</p>
+          <h1 className="mt-4 max-w-xl font-display text-4xl font-bold text-foreground sm:text-5xl lg:text-[4rem] lg:leading-[0.95]">
+            Train the night sky with precision.
           </h1>
-          <p className="mt-4 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Every field is rendered live from the Bright Star Catalogue with real J2000 coordinates
-            and magnitudes, and every stick figure comes from the modern Stellarium sky culture.
-            Recognise patterns, not screenshots.
+          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
+            AstroTrainer uses live star-field generation, official IAU boundaries, and real J2000
+            coordinates to help you learn the sky by pattern and context rather than screenshots.
           </p>
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-7 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link to="/practice">Start Practice</Link>
+              <Link to="/practice">Start practice</Link>
             </Button>
-            <Button asChild size="lg" variant="ghost">
-              <Link to="/progress">View Progress</Link>
+            <Button asChild size="lg" variant="secondary">
+              <Link to="/progress">View progress</Link>
             </Button>
           </div>
+
+          <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {stats.map((stat) => (
+              <div key={stat.label} className="panel p-3">
+                <dt className="label-caps">{stat.label}</dt>
+                <dd className="mt-2 font-display text-xl font-semibold text-foreground">
+                  {stat.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
-        <div className="panel overflow-hidden">
+
+        <div className="panel overflow-hidden p-2">
           <SkyViewer
             constellation={hero}
             magnitudeLimit={5.4}
-            className="h-[300px] sm:h-[420px]"
+            className="h-[320px] sm:h-[420px]"
             emphasizeTarget
           />
         </div>
       </section>
 
-      <section className="mt-10">
-        <h2 className="label-caps">Constellations</h2>
-        <div className="panel mt-3 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <section className="mt-12">
+        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="font-display text-lg">The 88 official IAU constellations</p>
-            <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-              Every constellation is drawn from real J2000 coordinates and magnitudes, with the
-              modern Stellarium stick figures, official IAU boundaries and an equatorial grid.
-              Browse the atlas or drill recognition at three difficulty levels.
-            </p>
+            <p className="label-caps">Practice</p>
+            <h2 className="mt-2 text-2xl font-semibold text-foreground">
+              Choose your learning mode
+            </h2>
           </div>
-          <div className="flex flex-wrap gap-2 sm:shrink-0">
-            <Button asChild variant="secondary">
-              <Link to="/constellations">Browse Constellations</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/practice" search={{ category: "constellations" }}>
-                Practice Constellations
-              </Link>
-            </Button>
-          </div>
+          <Button asChild size="sm" variant="secondary">
+            <Link to="/practice">Open practice hub</Link>
+          </Button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {featureCards.map((item) => (
+            <article key={item.title} className="panel flex h-full flex-col p-5">
+              <div className="flex items-center justify-between gap-3">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/80 bg-secondary/90 text-sm font-semibold text-primary">
+                  {item.title.charAt(0)}
+                </span>
+                <span className="label-caps">Mode</span>
+              </div>
+              <h3 className="mt-4 text-xl font-semibold text-foreground">{item.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{item.blurb}</p>
+              <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                <Button asChild size="sm" variant="secondary">
+                  <Link to={item.primary}>{item.primaryLabel}</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link to={item.secondary}>{item.secondaryLabel}</Link>
+                </Button>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="mt-10">
-        <h2 className="label-caps">Asterisms</h2>
-        <div className="panel mt-3 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <section className="mt-12">
+        <div className="mb-4 flex items-end justify-between gap-3">
           <div>
-            <p className="font-display text-lg">Patterns beyond the 88</p>
-            <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-              Asterisms are recognisable star patterns that are not official IAU constellations —
-              some sit inside one constellation, like the Big Dipper, and others span several, like
-              the Summer Triangle. Train them separately from constellation identification.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2 sm:shrink-0">
-            <Button asChild variant="secondary">
-              <Link to="/asterisms">Browse Asterisms</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/asterisms/practice">Practice Asterisms</Link>
-            </Button>
+            <p className="label-caps">Overview</p>
+            <h2 className="mt-2 text-2xl font-semibold text-foreground">Your dashboard</h2>
           </div>
         </div>
-      </section>
 
-      <section className="mt-10">
-        <h2 className="label-caps">Messier Objects</h2>
-        <div className="panel mt-3 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-display text-lg">The complete M1–M110 deep-sky catalog</p>
-            <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-              Browse galaxies, nebulae and star clusters with real J2000 positions, local image
-              support and focused practice modes.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2 sm:shrink-0">
-            <Button asChild variant="secondary">
-              <Link to="/messier">Browse Messier</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/messier/practice">Practice Messier</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-10">
-        <h2 className="label-caps">Your dashboard</h2>
         {ready && !hasHistory ? (
-          <div className="panel mt-3 p-6">
-            <p className="font-display text-lg">No observations logged yet</p>
-            <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-              Start with Beginner mode — the conventional stick figure is drawn over the stars while
-              you learn. Progress is stored locally in this browser; no account needed.
+          <div className="panel p-6">
+            <p className="font-display text-xl font-semibold text-foreground">
+              No observations logged yet
             </p>
-            <Button asChild className="mt-4" variant="secondary">
+            <p className="mt-2 max-w-prose text-sm leading-6 text-muted-foreground">
+              Start with the beginner session and build from the standard constellation figure to
+              more advanced star and deep-sky identification.
+            </p>
+            <Button asChild className="mt-5" variant="secondary">
               <Link to="/practice">Begin your first session</Link>
             </Button>
           </div>
         ) : (
-          <dl className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((s) => (
               <div key={s.label} className="panel p-4">
                 <dt className="label-caps">{s.label}</dt>
-                <dd className="mt-1 font-display text-2xl font-semibold">{s.value}</dd>
+                <dd className="mt-2 font-display text-2xl font-semibold text-foreground">
+                  {s.value}
+                </dd>
               </div>
             ))}
           </dl>

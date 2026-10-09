@@ -109,11 +109,11 @@ export function SkyViewer({
         className={cn("h-full w-full", mapClassName)}
       />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-1.5 p-2 sm:p-3">
-        <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-md border border-border/70 bg-background/70 p-1 backdrop-blur">
+        <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-full border border-white/10 bg-slate-950/60 p-1 shadow-[0_12px_30px_rgba(2,8,18,0.42)] backdrop-blur-md">
           <Button
             variant="ghost"
             size="icon"
-            className="size-8"
+            className="size-8 rounded-full text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
             aria-label="Zoom in"
             onClick={() => mapRef.current?.zoomBy(1.35)}
           >
@@ -122,7 +122,7 @@ export function SkyViewer({
           <Button
             variant="ghost"
             size="icon"
-            className="size-8"
+            className="size-8 rounded-full text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
             aria-label="Zoom out"
             onClick={() => mapRef.current?.zoomBy(1 / 1.35)}
           >
@@ -131,7 +131,7 @@ export function SkyViewer({
           <Button
             variant="ghost"
             size="icon"
-            className="size-8"
+            className="size-8 rounded-full text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
             aria-label="Reset view"
             onClick={() => mapRef.current?.reset()}
           >
@@ -139,13 +139,15 @@ export function SkyViewer({
           </Button>
         </div>
         {!lockToggles && (
-          <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-md border border-border/70 bg-background/70 p-1 backdrop-blur">
+          <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-full border border-white/10 bg-slate-950/60 p-1 shadow-[0_12px_30px_rgba(2,8,18,0.42)] backdrop-blur-md">
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                "h-8 gap-1.5 px-2 text-xs",
-                lines ? "text-primary" : "text-muted-foreground",
+                "h-8 gap-1.5 rounded-full px-2.5 text-[0.7rem] font-medium",
+                lines
+                  ? "bg-primary/12 text-primary ring-1 ring-primary/25"
+                  : "text-muted-foreground",
               )}
               onClick={() => setLines((v) => !v)}
               aria-pressed={lines}
@@ -156,8 +158,10 @@ export function SkyViewer({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-8 gap-1.5 px-2 text-xs",
-                labels ? "text-primary" : "text-muted-foreground",
+                "h-8 gap-1.5 rounded-full px-2.5 text-[0.7rem] font-medium",
+                labels
+                  ? "bg-primary/12 text-primary ring-1 ring-primary/25"
+                  : "text-muted-foreground",
               )}
               onClick={() => setLabels((v) => !v)}
               aria-pressed={labels}
@@ -168,8 +172,10 @@ export function SkyViewer({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-8 gap-1.5 px-2 text-xs",
-                boundary ? "text-primary" : "text-muted-foreground",
+                "h-8 gap-1.5 rounded-full px-2.5 text-[0.7rem] font-medium",
+                boundary
+                  ? "bg-primary/12 text-primary ring-1 ring-primary/25"
+                  : "text-muted-foreground",
               )}
               onClick={() => setBoundary((v) => !v)}
               aria-pressed={boundary}
@@ -180,8 +186,10 @@ export function SkyViewer({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-8 gap-1.5 px-2 text-xs",
-                grid ? "text-primary" : "text-muted-foreground",
+                "h-8 gap-1.5 rounded-full px-2.5 text-[0.7rem] font-medium",
+                grid
+                  ? "bg-primary/12 text-primary ring-1 ring-primary/25"
+                  : "text-muted-foreground",
               )}
               onClick={() => setGrid((v) => !v)}
               aria-pressed={grid}
@@ -192,8 +200,10 @@ export function SkyViewer({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-8 gap-1.5 px-2 text-xs",
-                ecliptic ? "text-red-400" : "text-muted-foreground",
+                "h-8 gap-1.5 rounded-full px-2.5 text-[0.7rem] font-medium",
+                ecliptic
+                  ? "bg-rose-500/10 text-rose-300 ring-1 ring-rose-400/25"
+                  : "text-muted-foreground",
               )}
               onClick={() => setEcliptic((v) => !v)}
               aria-pressed={ecliptic}
@@ -204,8 +214,10 @@ export function SkyViewer({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-8 gap-1.5 px-2 text-xs",
-                celestialEquator ? "text-emerald-400" : "text-muted-foreground",
+                "h-8 gap-1.5 rounded-full px-2.5 text-[0.7rem] font-medium",
+                celestialEquator
+                  ? "bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-400/25"
+                  : "text-muted-foreground",
               )}
               onClick={() => setCelestialEquator((v) => !v)}
               aria-pressed={celestialEquator}

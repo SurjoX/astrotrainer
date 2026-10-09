@@ -12,10 +12,6 @@
  *
  * The :root and .dark blocks define the actual color values using oklch.
  * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
  */
 
 @theme inline {
@@ -65,42 +61,43 @@
 }
 
 :root {
-  --radius: 0.4rem;
-  --background: oklch(0.16 0.021 264);
-  --foreground: oklch(0.94 0.012 250);
-  --sky: oklch(0.11 0.022 265);
-  --card: oklch(0.204 0.023 264);
-  --card-foreground: oklch(0.94 0.012 250);
-  --popover: oklch(0.204 0.023 264);
-  --popover-foreground: oklch(0.94 0.012 250);
-  --primary: oklch(0.79 0.128 226);
-  --primary-foreground: oklch(0.16 0.03 250);
-  --secondary: oklch(0.26 0.024 263);
-  --secondary-foreground: oklch(0.93 0.012 250);
-  --muted: oklch(0.24 0.021 263);
-  --muted-foreground: oklch(0.68 0.028 254);
-  --accent: oklch(0.83 0.135 84);
-  --accent-foreground: oklch(0.18 0.03 80);
-  --success: oklch(0.75 0.145 158);
-  --success-foreground: oklch(0.16 0.03 160);
-  --destructive: oklch(0.65 0.19 22);
-  --destructive-foreground: oklch(0.97 0.01 20);
-  --border: oklch(0.3 0.023 263);
-  --input: oklch(0.3 0.023 263);
-  --ring: oklch(0.79 0.128 226);
-  --chart-1: oklch(0.79 0.128 226);
-  --chart-2: oklch(0.83 0.135 84);
-  --chart-3: oklch(0.75 0.145 158);
-  --chart-4: oklch(0.7 0.14 300);
-  --chart-5: oklch(0.65 0.19 22);
-  --sidebar: oklch(0.18 0.022 264);
+  --radius: 1.1rem;
+  --background: oklch(0.095 0.012 247);
+  --foreground: oklch(0.98 0.006 250);
+  --sky: oklch(0.07 0.015 255);
+  --card: oklch(0.138 0.015 246);
+  --card-foreground: oklch(0.976 0.006 247);
+  --popover: oklch(0.145 0.016 246);
+  --popover-foreground: oklch(0.98 0.006 247);
+  --primary: oklch(0.72 0.09 229);
+  --primary-foreground: oklch(0.102 0.018 242);
+  --secondary: oklch(0.191 0.016 245);
+  --secondary-foreground: oklch(0.958 0.008 247);
+  --muted: oklch(0.179 0.014 245);
+  --muted-foreground: oklch(0.72 0.024 247);
+  --accent: oklch(0.83 0.12 86);
+  --accent-foreground: oklch(0.17 0.02 84);
+  --success: oklch(0.75 0.13 155);
+  --success-foreground: oklch(0.13 0.02 155);
+  --destructive: oklch(0.66 0.18 24);
+  --destructive-foreground: oklch(0.97 0.01 24);
+  --border: oklch(0.254 0.018 246);
+  --input: oklch(0.254 0.018 246);
+  --ring: oklch(0.72 0.09 229);
+  --chart-1: oklch(0.72 0.09 229);
+  --chart-2: oklch(0.83 0.12 86);
+  --chart-3: oklch(0.75 0.13 155);
+  --chart-4: oklch(0.68 0.12 315);
+  --chart-5: oklch(0.66 0.18 24);
+  --sidebar: oklch(0.12 0.014 244);
   --sidebar-foreground: oklch(0.94 0.012 250);
-  --sidebar-primary: oklch(0.79 0.128 226);
-  --sidebar-primary-foreground: oklch(0.16 0.03 250);
-  --sidebar-accent: oklch(0.26 0.024 263);
-  --sidebar-accent-foreground: oklch(0.93 0.012 250);
-  --sidebar-border: oklch(0.3 0.023 263);
-  --sidebar-ring: oklch(0.79 0.128 226);
+  --sidebar-primary: oklch(0.72 0.09 229);
+  --sidebar-primary-foreground: oklch(0.102 0.018 242);
+  --sidebar-accent: oklch(0.19 0.016 245);
+  --sidebar-accent-foreground: oklch(0.958 0.008 247);
+  --sidebar-border: oklch(0.254 0.018 246);
+  --sidebar-ring: oklch(0.72 0.09 229);
+  --shadow-soft: 0 18px 45px rgba(2, 8, 18, 0.28);
 }
 
 .dark {
@@ -110,10 +107,83 @@
 @layer base {
   * {
     border-color: var(--color-border);
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    background-color: var(--color-background);
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top, rgba(118, 152, 255, 0.1), transparent 36%),
+      radial-gradient(circle at bottom right, rgba(79, 210, 177, 0.08), transparent 28%),
+      var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    text-rendering: optimizeLegibility;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 32%, transparent);
+    color: var(--foreground);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-sans);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-[1.35rem] border border-border/80 bg-card/75 shadow-[var(--shadow-soft)] backdrop-blur-sm;
+  }
+
+  .label-caps {
+    @apply text-[0.68rem] font-medium uppercase tracking-[0.18em] text-muted-foreground;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .panel {
+    backdrop-filter: none;
+    background-color: var(--card);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

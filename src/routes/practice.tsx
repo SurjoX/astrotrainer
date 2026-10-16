@@ -296,68 +296,100 @@ function PracticePage() {
     setStarStartedAt(Date.now());
   }, [starDifficulty, starPracticeType]);
 
-  const submitStar = useCallback(() => {
-    if (!starQuestion || starAnswered) return;
+  const submitStar = useCallback(
+    (selectedLocation = starSelection) => {
+      if (!starQuestion || starAnswered) return;
 
-    const isLocateQuestion = starPracticeMethod === "locate";
-    const isThreeAttemptQuestion = starDifficulty !== "advanced";
-    const elapsedMs = Date.now() - starStartedAt;
-    const separation = starSelection
-      ? angularSeparation(
-          starSelection.ra,
-          starSelection.dec,
-          starQuestion.star.ra,
-          starQuestion.star.dec,
-        )
-      : null;
+      const isLocateQuestion = starPracticeMethod === "locate";
+      const isThreeAttemptQuestion = starDifficulty !== "advanced";
+      const isAdvancedLocate = isLocateQuestion && starDifficulty === "advanced";
+      const elapsedMs = Date.now() - starStartedAt;
+      const separation = selectedLocation
+        ? angularSeparation(
+            selectedLocation.ra,
+            selectedLocation.dec,
+            starQuestion.star.ra,
+            starQuestion.star.dec,
+          )
+        : null;
 
-    const attemptNumber = isThreeAttemptQuestion ? Math.min(starAttempts + 1, 3) : 1;
-    const correct = isLocateQuestion
-      ? separation !== null && separation <= STAR_LOCATION_TOLERANCE_DEG
-      : matchesStarAnswer(starQuestion.star, starInput, starPracticeType);
+      const attemptNumber = isThreeAttemptQuestion
+        ? Math.min(starAttempts + 1, 3)
+        : isAdvancedLocate
+          ? 2
+          : 1;
+      const correct = isLocateQuestion
+        ? separation !== null && separation <= STAR_LOCATION_TOLERANCE_DEG
+        : matchesStarAnswer(starQuestion.star, starInput, starPracticeType);
 
-    if (correct || (isThreeAttemptQuestion && attemptNumber >= 3)) {
-      const points = Math.max(1, Math.round(100 - Math.min(95, (separation ?? 8.5) * 8)));
-      recordStarAnswer({
-        starId: starQuestion.star.id,
-        correct,
-        elapsedMs,
-        difficulty: starDifficulty,
-        angularErrorDeg: separation,
-      });
+      if (correct || (isThreeAttemptQuestion && attemptNumber >= 3) || isAdvancedLocate) {
+        const points = Math.max(1, Math.round(100 - Math.min(95, (separation ?? 8.5) * 8)));
+        recordStarAnswer({
+          starId: starQuestion.star.id,
+          correct,
+          elapsedMs,
+          difficulty: starDifficulty,
+          angularErrorDeg: separation,
+        });
 
-      setStarAnswered({
-        question: starQuestion,
-        input: starInput,
-        selected: starSelection,
-        separation,
-        correct,
-        elapsedMs,
-        points,
-      });
-      setStarAttempts(attemptNumber);
-      setStarHintPromptOpen(false);
-      setStarLinesVisible(true);
-      return;
-    }
-
-    if (isThreeAttemptQuestion) {
-      setStarAttempts(attemptNumber);
-      if (attemptNumber === 2) {
-        setStarHintPromptOpen(true);
+        setStarAnswered({
+          question: starQuestion,
+          input: starInput,
+          selected: selectedLocation,
+          separation,
+          correct,
+          elapsedMs,
+          points,
+        });
+        setStarAttempts(attemptNumber);
+        setStarHintPromptOpen(false);
+        setStarLinesVisible(true);
+        return;
       }
-    }
-  }, [
-    starAnswered,
-    starAttempts,
-    starDifficulty,
-    starInput,
-    starPracticeMethod,
-    starPracticeType,
-    starQuestion,
-    starSelection,
-    starStartedAt,
-  ]);
+
+      if (isThreeAttemptQuestion) {
+        setStarAttempts(attemptNumber);
+        if (attemptNumber === 2) {
+          setStarHintPromptOpen(true);
+        }
+      }
+    },
+    [
+      starAnswered,
+      starAttempts,
+      starDifficulty,
+      starInput,
+      starPracticeMethod,
+      starPracticeType,
+      starQuestion,
+      starSelection,
+      starStartedAt,
+    ],
+  );
+
+  const handleAdvancedLocateClick = useCallback(
+    (position: { ra: number; dec: number }) => {
+      if (
+        starPracticeMethod !== "locate" ||
+        starDifficulty !== "advanced" ||
+        !starQuestion ||
+        starAnswered ||
+        starAttempts >= 2
+      ) {
+        return;
+      }
+
+      setStarSelection(position);
+      if (starAttempts === 0) {
+        setStarAttempts(1);
+        return;
+      }
+
+      setStarAttempts(2);
+      submitStar(position);
+    },
+    [starAnswered, starAttempts, starDifficulty, starPracticeMethod, starQuestion, submitStar],
+  );
 
   // countdown for timed practice
   useEffect(() => {
@@ -594,7 +626,9 @@ function PracticePage() {
               {...((isLocateMode || isAdvancedLocate) && !reveal
                 ? {
                     onSkyClick: (position: { ra: number; dec: number }) =>
-                      setStarSelection(position),
+                      isLocateMode && isAdvancedLocate
+                        ? handleAdvancedLocateClick(position)
+                        : setStarSelection(position),
                   }
                 : {})}
               markers={markerList}
@@ -602,7 +636,9 @@ function PracticePage() {
             />
             {!reveal && isLocateMode && starSelection && (
               <div className="absolute left-3 top-3 rounded-md border border-primary/50 bg-background/80 px-3 py-2 text-xs backdrop-blur">
-                Selection ready — submit when you are confident.
+                {isAdvancedLocate
+                  ? "Try again"
+                  : "Selection ready — submit when you are confident."}
               </div>
             )}
           </div>
@@ -622,21 +658,34 @@ function PracticePage() {
             <>
               {isLocateMode ? (
                 <div className="mt-5 flex flex-col gap-3">
-                  <Button disabled={!starSelection} onClick={submitStar}>
-                    Submit location
-                  </Button>
-                  {starAttempts === 1 && starDifficulty !== "advanced" && (
-                    <Alert
-                      variant="destructive"
-                      className="border-destructive/40 bg-destructive/10 text-destructive"
-                    >
-                      Try again
-                    </Alert>
+                  {isAdvancedLocate ? (
+                    <>
+                      {starAttempts === 1 && (
+                        <Alert className="border-primary/40 bg-primary/10">Try again</Alert>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Click the map to answer. You have two attempts.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Button disabled={!starSelection} onClick={() => submitStar()}>
+                        Submit location
+                      </Button>
+                      {starAttempts === 1 && (
+                        <Alert
+                          variant="destructive"
+                          className="border-destructive/40 bg-destructive/10 text-destructive"
+                        >
+                          Try again
+                        </Alert>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Click the map to place a marker, then submit. The target is not revealed
+                        until after your answer.
+                      </p>
+                    </>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    Click the map to place a marker, then submit. The target is not revealed until
-                    after your answer.
-                  </p>
                 </div>
               ) : (
                 <form

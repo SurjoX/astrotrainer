@@ -145,7 +145,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Nav />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="route-content">
+        <Outlet />
+      </div>
     </QueryClientProvider>
   );
 }

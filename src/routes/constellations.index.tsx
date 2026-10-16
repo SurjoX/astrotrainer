@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Download, Search, Shuffle, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -230,78 +231,76 @@ function AtlasPage() {
       {/* IAU PDF MODAL                                         */}
       {/* ====================================================== */}
 
-      {iauConstellation && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${iauConstellation.name} IAU chart`}
-          onMouseDown={(e) => {
-            /*
-             * Close when clicking the dark background,
-             * but not when clicking inside the modal.
-             */
-            if (e.target === e.currentTarget) {
-              closeIauViewer();
-            }
-          }}
-        >
-          {/* ================================================== */}
-          {/* MODAL                                              */}
-          {/* ================================================== */}
+      {iauConstellation &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${iauConstellation.name} IAU chart`}
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) {
+                closeIauViewer();
+              }
+            }}
+          >
+            {/* ================================================== */}
+            {/* MODAL                                              */}
+            {/* ================================================== */}
 
-          <div className="flex h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
-            {/* ================================================= */}
-            {/* MODAL HEADER                                     */}
-            {/* ================================================= */}
+            <div className="flex h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+              {/* ================================================= */}
+              {/* MODAL HEADER                                     */}
+              {/* ================================================= */}
 
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
-              {/* Title */}
-              <div className="min-w-0">
-                <h2 className="font-display text-lg font-semibold">{iauConstellation.name}</h2>
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
+                {/* Title */}
+                <div className="min-w-0">
+                  <h2 className="font-display text-lg font-semibold">{iauConstellation.name}</h2>
 
-                <p className="text-xs text-muted-foreground">Official IAU constellation chart</p>
-              </div>
+                  <p className="text-xs text-muted-foreground">Official IAU constellation chart</p>
+                </div>
 
-              {/* Header actions */}
-              <div className="flex shrink-0 items-center gap-2">
-                {/* Download PDF */}
-                <a
-                  href={getIauPdfPath(iauConstellation.abbreviation)}
-                  download={`${iauConstellation.abbreviation.toLowerCase()}.pdf`}
-                >
-                  <Button variant="secondary" size="sm" className="gap-2">
-                    <Download className="size-4" />
-                    Download PDF
+                {/* Header actions */}
+                <div className="flex shrink-0 items-center gap-2">
+                  {/* Download PDF */}
+                  <a
+                    href={getIauPdfPath(iauConstellation.abbreviation)}
+                    download={`${iauConstellation.abbreviation.toLowerCase()}.pdf`}
+                  >
+                    <Button variant="secondary" size="sm" className="gap-2">
+                      <Download className="size-4" />
+                      Download PDF
+                    </Button>
+                  </a>
+
+                  {/* Close */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={closeIauViewer}
+                    aria-label="Close IAU chart"
+                  >
+                    <X className="size-5" />
                   </Button>
-                </a>
+                </div>
+              </div>
 
-                {/* Close */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={closeIauViewer}
-                  aria-label="Close IAU chart"
-                >
-                  <X className="size-5" />
-                </Button>
+              {/* ================================================= */}
+              {/* PDF VIEWER                                       */}
+              {/* ================================================= */}
+
+              <div className="min-h-0 flex-1 bg-muted">
+                <iframe
+                  src={getIauPdfPath(iauConstellation.abbreviation)}
+                  title={`${iauConstellation.name} IAU chart`}
+                  className="h-full w-full border-0"
+                />
               </div>
             </div>
-
-            {/* ================================================= */}
-            {/* PDF VIEWER                                       */}
-            {/* ================================================= */}
-
-            <div className="min-h-0 flex-1 bg-muted">
-              <iframe
-                src={getIauPdfPath(iauConstellation.abbreviation)}
-                title={`${iauConstellation.name} IAU chart`}
-                className="h-full w-full border-0"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </main>
   );
 }

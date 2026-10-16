@@ -19,6 +19,9 @@ import { clampFov, fitConstellation } from "@/lib/astro/fov";
 import { boundaryOf } from "@/lib/astro/boundaries";
 import { buildGrid, decLabel, raLabel } from "@/lib/astro/grid";
 import { Projection, type ViewState } from "@/lib/astro/projection";
+import { asterisms } from "@/lib/astro/asterisms";
+import { OVERLAY_COLORS } from "@/lib/astro/overlayColors";
+import { galacticEquator } from "@/lib/astro/referencePoints";
 import type { Constellation, LabelMode, Star } from "@/lib/astro/types";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +52,12 @@ export interface StarMapProps {
   showEcliptic?: boolean;
   /** Celestial equator */
   showCelestialEquator?: boolean;
+  /** Galactic equator in the J2000 equatorial frame */
+  showGalacticEquator?: boolean;
+  /** Render the shared asterism catalog independently of constellation figures */
+  showAsterisms?: boolean;
+  /** Render names from the shared asterism catalog independently of its lines */
+  showAsterismLabels?: boolean;
   labelMode?: LabelMode;
   /**
    * Constellation ids whose official IAU boundary should be drawn instead of the
@@ -73,6 +82,8 @@ export interface SkyMarker {
   dec: number;
   color?: string;
   label?: string;
+  markerStyle?: "circle" | "plus" | "symbol";
+  symbol?: string;
 }
 
 function starColor(spect: string | null): string {
@@ -204,6 +215,9 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     showConstellationLabels = false,
     showEcliptic = false,
     showCelestialEquator = false,
+    showGalacticEquator = false,
+    showAsterisms = false,
+    showAsterismLabels = false,
     labelMode = "none",
     boundaryIds,
     labelStars: labelStarsProp,
@@ -383,10 +397,10 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
 
       for (const line of grid) {
         ctx.strokeStyle = line.major
-          ? "rgba(126,190,255,0.30)"
+          ? "rgba(150,180,220,0.40)"
           : line.meridian
-            ? "rgba(150,178,220,0.16)"
-            : "rgba(150,178,220,0.13)";
+            ? "rgba(150,180,220,0.22)"
+            : "rgba(150,180,220,0.19)";
 
         ctx.setLineDash(line.major ? [] : [4, 5]);
 
@@ -397,7 +411,7 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
 
       ctx.font = "500 10px ui-monospace, SFMono-Regular, monospace";
 
-      ctx.fillStyle = "rgba(150,178,220,0.55)";
+      ctx.fillStyle = "rgba(150,180,220,0.68)";
 
       ctx.textBaseline = "middle";
 
@@ -540,7 +554,7 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
       if (lineTargets.length > 0) {
         ctx.lineWidth = 1.25;
 
-        ctx.strokeStyle = "rgba(122,196,255,0.62)";
+        ctx.strokeStyle = "rgba(85,183,255,0.62)";
 
         ctx.lineCap = "round";
 
@@ -567,6 +581,33 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
       }
     }
 
+    if (showAsterisms) {
+      ctx.save();
+      ctx.strokeStyle = OVERLAY_COLORS.asterisms;
+      ctx.lineWidth = 1.4;
+      ctx.lineCap = "round";
+      ctx.setLineDash([3, 4]);
+
+      for (const asterism of asterisms) {
+        for (const [a, b] of asterism.lineData) {
+          const sa = starById.get(a);
+          const sb = starById.get(b);
+          if (!sa || !sb) continue;
+          const pa = positions.get(a) ?? proj.project(sa.ra, sa.dec);
+          const pb = positions.get(b) ?? proj.project(sb.ra, sb.dec);
+          if (!pa || !pb || Math.hypot(pa.x - pb.x, pa.y - pb.y) > Math.max(size.w, size.h))
+            continue;
+          ctx.beginPath();
+          ctx.moveTo(pa.x, pa.y);
+          ctx.lineTo(pb.x, pb.y);
+          ctx.stroke();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    const existingLabelBoxes: { x: number; y: number; w: number; h: number }[] = [];
     for (const marker of markers) {
       const p = proj.project(marker.ra, marker.dec);
       if (!p) continue;
@@ -574,19 +615,46 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
       ctx.save();
       ctx.strokeStyle = color;
       ctx.fillStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(p.x - 12, p.y);
-      ctx.lineTo(p.x + 12, p.y);
-      ctx.moveTo(p.x, p.y - 12);
-      ctx.lineTo(p.x, p.y + 12);
-      ctx.stroke();
+      if (marker.markerStyle === "symbol" && marker.symbol) {
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "600 19px 'Apple Symbols', 'Segoe UI Symbol', sans-serif";
+        ctx.fillText(marker.symbol, p.x, p.y);
+      } else if (marker.markerStyle === "plus") {
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(p.x - 4, p.y);
+        ctx.lineTo(p.x + 4, p.y);
+        ctx.moveTo(p.x, p.y - 4);
+        ctx.lineTo(p.x, p.y + 4);
+        ctx.stroke();
+      } else {
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(p.x - 12, p.y);
+        ctx.lineTo(p.x + 12, p.y);
+        ctx.moveTo(p.x, p.y - 12);
+        ctx.lineTo(p.x, p.y + 12);
+        ctx.stroke();
+      }
       if (marker.label) {
-        ctx.font = "600 11px ui-sans-serif, system-ui, sans-serif";
-        ctx.fillText(marker.label, p.x + 12, p.y - 10);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+        ctx.font =
+          marker.markerStyle === "plus"
+            ? "500 11px ui-sans-serif, system-ui, sans-serif"
+            : "600 11px ui-sans-serif, system-ui, sans-serif";
+        ctx.fillText(marker.label, p.x + (marker.markerStyle === "symbol" ? 11 : 6), p.y - 6);
+        const labelWidth = ctx.measureText(marker.label).width;
+        existingLabelBoxes.push({
+          x: p.x + (marker.markerStyle === "symbol" ? 11 : 6),
+          y: p.y - 18,
+          w: labelWidth,
+          h: 14,
+        });
       }
       ctx.restore();
     }
@@ -627,6 +695,13 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
       ctx.strokeStyle = "rgba(60, 255, 110, 0.96)";
       ctx.setLineDash([]);
       strokePath(path, false);
+    }
+
+    if (showGalacticEquator) {
+      ctx.lineWidth = 1.35;
+      ctx.strokeStyle = "rgba(184,115,51,0.94)";
+      ctx.setLineDash([]);
+      strokePath(galacticEquator(), false);
     }
 
     // ----------------------------------------------------------
@@ -738,8 +813,6 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
       ctx.textBaseline = "middle";
       ctx.fillStyle = "rgba(215,228,255,0.88)";
 
-      const taken: { x: number; y: number; w: number; h: number }[] = [];
-
       for (const current of constellations) {
         const p = proj.project(current.centerRa, current.centerDec);
         if (!p) continue;
@@ -749,19 +822,94 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
         const w = ctx.measureText(text).width;
         const box = { x: p.x - w / 2 - 6, y: p.y - 9, w: w + 12, h: 18 };
 
-        const clash = taken.some(
+        const clash = existingLabelBoxes.some(
           (t) =>
             box.x < t.x + t.w && box.x + box.w > t.x && box.y < t.y + t.h && box.y + box.h > t.y,
         );
 
         if (clash) continue;
 
-        taken.push(box);
+        existingLabelBoxes.push(box);
         ctx.fillText(text, p.x, p.y);
       }
 
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
+    }
+
+    if (showAsterismLabels) {
+      ctx.save();
+      ctx.font = "500 10px ui-sans-serif, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = OVERLAY_COLORS.asterisms;
+      const asterismLabelBoxes: { x: number; y: number; w: number; h: number }[] = [];
+
+      for (const asterism of asterisms) {
+        const p = proj.project(asterism.centerRa, asterism.centerDec);
+        if (!p) continue;
+        const text = asterism.name;
+        const width = ctx.measureText(text).width;
+        const offsets = [
+          [0, 0],
+          [0, -16],
+          [0, 16],
+          [-18, 0],
+          [18, 0],
+          [0, -32],
+          [0, 32],
+        ] as const;
+        const placements = offsets
+          .map(([dx, dy]) => ({ x: p.x + dx, y: p.y + dy }))
+          .filter(
+            (position) =>
+              position.x >= 8 &&
+              position.y >= 8 &&
+              position.x <= size.w - 8 &&
+              position.y <= size.h - 8,
+          )
+          .map((position) => {
+            const box = {
+              x: position.x - width / 2 - 3,
+              y: position.y - 7,
+              w: width + 6,
+              h: 14,
+            };
+            const clashes = [...existingLabelBoxes, ...asterismLabelBoxes].some(
+              (taken) =>
+                box.x < taken.x + taken.w &&
+                box.x + box.w > taken.x &&
+                box.y < taken.y + taken.h &&
+                box.y + box.h > taken.y,
+            );
+            const starOverlaps = field.reduce((count, star) => {
+              const starPosition = positions.get(star.id);
+              return (
+                count +
+                Number(
+                  !!starPosition &&
+                    starPosition.x >= box.x - 2 &&
+                    starPosition.x <= box.x + box.w + 2 &&
+                    starPosition.y >= box.y - 2 &&
+                    starPosition.y <= box.y + box.h + 2,
+                )
+              );
+            }, 0);
+            return { position, box, clashes, starOverlaps };
+          })
+          .filter((placement) => !placement.clashes)
+          .sort((a, b) => a.starOverlaps - b.starOverlaps);
+        const placement = placements[0];
+        if (!placement) continue;
+
+        asterismLabelBoxes.push(placement.box);
+        ctx.lineWidth = 3;
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = "rgba(2, 8, 18, 0.9)";
+        ctx.strokeText(text, placement.position.x, placement.position.y);
+        ctx.fillText(text, placement.position.x, placement.position.y);
+      }
+      ctx.restore();
     }
 
     // ----------------------------------------------------------
@@ -806,7 +954,7 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
 
       ctx.lineTo(16, 0);
 
-      ctx.strokeStyle = "rgba(122,196,255,0.85)";
+      ctx.strokeStyle = "rgba(85,183,255,0.85)";
 
       ctx.stroke();
 
@@ -849,6 +997,9 @@ export const StarMap = forwardRef<StarMapHandle, StarMapProps>(function StarMap(
     showAllConstellationLines,
     showEcliptic,
     showCelestialEquator,
+    showGalacticEquator,
+    showAsterisms,
+    showAsterismLabels,
     labelMode,
     target,
     emphasizeTarget,

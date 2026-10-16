@@ -42,7 +42,7 @@ function SkyMapPage() {
         </div>
       </header>
 
-      <div className="panel min-w-0 overflow-hidden border border-border/70 bg-card/50">
+      <div className="min-w-0 overflow-visible rounded-[1.35rem] border border-border/70 bg-card/50 shadow-[var(--shadow-soft)]">
         <SkyViewer
           view={initialView}
           magnitudeLimit={6.2}
@@ -56,6 +56,7 @@ function SkyMapPage() {
           showAllConstellationBoundaries
           labelsMode="constellation"
           labelModeWhenOn="important"
+          allowExpand
           className="h-[calc(100vh-12rem)] min-h-[420px] sm:h-[calc(100vh-13rem)]"
           mapClassName="rounded-lg"
         />
